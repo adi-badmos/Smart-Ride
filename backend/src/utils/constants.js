@@ -1,0 +1,19 @@
+export const ROLES = Object.freeze({
+  USER: 'user',
+  DRIVER: 'driver',
+  ADMIN: 'admin',
+});
+
+export const SUBSCRIPTION_STATUS = Object.freeze({
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  WAITING_ASSIGNMENT: 'WAITING_ASSIGNMENT',
+  ACTIVE: 'ACTIVE',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED',
+});
+
+export const NOTIFICATION_TYPES = Object.freeze({
+  PAYMENT_SUCCESS: 'PAYMENT_SUCCESS',
+  DRIVER_ASSIGNED: 'DRIVER_ASSIGNED',
+  DRIVER_APPROVED: 'DRIVER_APPROVED', // wired in Tier 2 (Phase 10)
+});
