@@ -9,4 +9,4 @@ dist/
 build/
 
 # Logs
-*.log
+logs/
