@@ -10,7 +10,7 @@ export const updateUserStatusRequest = (id, isActive) =>
   axiosInstance.put(`/admin/users/${id}/status`, { isActive }).then((res) => res.data.data.user);
 
 export const fetchDrivers = (params = {}) =>
-  axiosInstance.get('/admin/drivers', { params }).then((res) => res.data.data.drivers);
+  axiosInstance.get('/admin/drivers', { params }).then((res) => res.data.data);
 
 export const fetchDriverById = (id) =>
   axiosInstance.get(`/admin/drivers/${id}`).then((res) => res.data.data.driver);

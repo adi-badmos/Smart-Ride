@@ -23,7 +23,7 @@ export default function VehicleForm({ onCreated }) {
 
   useEffect(() => {
     fetchDrivers()
-      .then(setDrivers)
+      .then(({ drivers }) => setDrivers(drivers))
       .catch(() => setDrivers([]));
   }, []);
 
