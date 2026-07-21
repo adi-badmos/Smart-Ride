@@ -13,7 +13,9 @@ export default function CreatePayout({ onCreated }) {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchDrivers().then(setDrivers).catch(() => {});
+    fetchDrivers({ limit: 100 })
+      .then(({ drivers }) => setDrivers(drivers))
+      .catch(() => {});
   }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });

@@ -30,8 +30,12 @@ export default function RouteForm({ initialRoute, onSaved }) {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchDrivers().then(setDrivers).catch(() => {});
-    fetchVehicles().then(setVehicles).catch(() => {});
+    fetchDrivers({ limit: 100 })
+      .then(({ drivers }) => setDrivers(drivers))
+      .catch(() => {});
+    fetchVehicles({ limit: 100 })
+      .then(({ vehicles }) => setVehicles(vehicles))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {

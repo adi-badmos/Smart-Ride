@@ -13,7 +13,9 @@ export default function AssignRouteModal({ subscription, show, onClose, onAssign
 
   useEffect(() => {
     if (show) {
-      fetchRoutes().then(setRoutes).catch(() => {});
+      fetchRoutes({ limit: 100 })
+        .then(({ routes }) => setRoutes(routes))
+        .catch(() => {});
       setSelectedRouteId('');
       setSelectedPickupPointId('');
       setOccupancy(null);
