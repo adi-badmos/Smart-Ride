@@ -63,27 +63,36 @@ export default function SubscriptionDetail() {
           </span>
         </div>
 
-        <div className="sr-detail-grid" style={{ marginBottom: '1.5rem' }}>
-          <div className="sr-detail-label">Price / Duration</div>
-          <div className="sr-detail-value">
-            ₹{subscription.plan?.price} / {subscription.plan?.duration} days
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem 2rem', marginBottom: '1.5rem' }}>
+          {/* Row 1 */}
+          <div>
+            <div className="sr-detail-label">Home</div>
+            <div className="sr-detail-value">{subscription.homeAddress?.address}</div>
+          </div>
+          <div>
+            <div className="sr-detail-label">Destination</div>
+            <div className="sr-detail-value">{subscription.desiredDestination?.address}</div>
           </div>
 
-          <div className="sr-detail-label">Home</div>
-          <div className="sr-detail-value">{subscription.homeAddress?.address}</div>
-
-          <div className="sr-detail-label">Destination</div>
-          <div className="sr-detail-value">{subscription.desiredDestination?.address}</div>
-
-          <div className="sr-detail-label">Assigned Route</div>
-          <div className="sr-detail-value">
-            {subscription.route ? (
-              <>{subscription.route.name} ({subscription.route.city})</>
-            ) : (
-              <span className="sr-text-muted">No route assigned yet.</span>
-            )}
+          {/* Row 2 */}
+          <div>
+            <div className="sr-detail-label">Price / Duration</div>
+            <div className="sr-detail-value">
+              ₹{subscription.plan?.price} / {subscription.plan?.duration} days
+            </div>
+          </div>
+          <div>
+            <div className="sr-detail-label">Assigned Route</div>
+            <div className="sr-detail-value">
+              {subscription.route ? (
+                <>{subscription.route.name} ({subscription.route.city})</>
+              ) : (
+                <span className="sr-text-muted">No route assigned yet.</span>
+              )}
+            </div>
           </div>
         </div>
+
 
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           {subscription.status === 'PAYMENT_PENDING' && (
