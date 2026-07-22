@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Card, Row, Col, Spinner, Alert, Table, ProgressBar, Badge } from 'react-bootstrap';
 import { fetchDashboardStats, fetchRevenue, fetchTrends } from './dashboardService.js';
 
 const MONTH_NAMES = [
@@ -10,11 +9,11 @@ const subscriptionStatusColor = {
   PAYMENT_PENDING: 'warning',
   WAITING_ASSIGNMENT: 'info',
   ACTIVE: 'success',
-  EXPIRED: 'secondary',
+  EXPIRED: 'muted',
   CANCELLED: 'danger',
 };
 
-const complaintStatusColor = { open: 'warning', in_progress: 'info', resolved: 'success', closed: 'secondary' };
+const complaintStatusColor = { open: 'warning', in_progress: 'info', resolved: 'success', closed: 'muted' };
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -42,8 +41,8 @@ export default function AdminDashboard() {
     })();
   }, []);
 
-  if (loading) return <Spinner animation="border" />;
-  if (error) return <Alert variant="danger">{error}</Alert>;
+  if (loading) return <div className="sr-spinner-wrap"><div className="sr-spinner" /></div>;
+  if (error) return <div className="sr-alert sr-alert-danger">{error}</div>;
 
   // Last 6 months of registration activity, most recent last — a simple
   // relative-height bar chart built from plain divs, no charting library.
@@ -55,122 +54,82 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <h4 className="mb-3">Admin Dashboard</h4>
+      <h1 className="sr-page-title">Admin Dashboard</h1>
 
-      <Row className="g-4 mb-4">
-        <Col md={3}>
-          <Card>
-            <Card.Body>
-              <Card.Title className="text-muted small">Total Riders</Card.Title>
-              <Card.Text className="fs-3">{stats.totalUsers}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3}>
-          <Card>
-            <Card.Body>
-              <Card.Title className="text-muted small">Total Drivers</Card.Title>
-              <Card.Text className="fs-3">{stats.totalDrivers}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3}>
-          <Card>
-            <Card.Body>
-              <Card.Title className="text-muted small">Active Subscriptions</Card.Title>
-              <Card.Text className="fs-3">{stats.activeSubscriptions}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3}>
-          <Card>
-            <Card.Body>
-              <Card.Title className="text-muted small">Pending Assignments</Card.Title>
-              <Card.Text className="fs-3">{stats.pendingAssignments}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+      <div className="sr-row sr-col-4" style={{ marginBottom: '1.5rem' }}>
+        <div className="sr-stat">
+          <div className="sr-stat-label">Total Riders</div>
+          <div className="sr-stat-value">{stats.totalUsers}</div>
+        </div>
+        <div className="sr-stat">
+          <div className="sr-stat-label">Total Drivers</div>
+          <div className="sr-stat-value">{stats.totalDrivers}</div>
+        </div>
+        <div className="sr-stat">
+          <div className="sr-stat-label">Active Subscriptions</div>
+          <div className="sr-stat-value">{stats.activeSubscriptions}</div>
+        </div>
+        <div className="sr-stat">
+          <div className="sr-stat-label">Pending Assignments</div>
+          <div className="sr-stat-value">{stats.pendingAssignments}</div>
+        </div>
+      </div>
 
-      <Row className="g-4 mb-4">
-        <Col md={4}>
-          <Card>
-            <Card.Body>
-              <Card.Title className="text-muted small">Total Revenue</Card.Title>
-              <Card.Text className="fs-3">₹{revenue.totalRevenue.toLocaleString()}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={4}>
-          <Card>
-            <Card.Body>
-              <Card.Title className="text-muted small">Attendance Rate</Card.Title>
-              <Card.Text className="fs-3">
-                {stats.attendanceRatePercent === null ? '—' : `${stats.attendanceRatePercent}%`}
-              </Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={4}>
-          <Card>
-            <Card.Body>
-              <Card.Title className="text-muted small">Open Complaints</Card.Title>
-              <Card.Text className="fs-3">
-                {(stats.complaintStats.find((c) => c.status === 'open')?.count || 0) +
-                  (stats.complaintStats.find((c) => c.status === 'in_progress')?.count || 0)}
-              </Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+      <div className="sr-row sr-col-3" style={{ marginBottom: '1.5rem' }}>
+        <div className="sr-stat">
+          <div className="sr-stat-label">Total Revenue</div>
+          <div className="sr-stat-value">₹{revenue.totalRevenue.toLocaleString()}</div>
+        </div>
+        <div className="sr-stat">
+          <div className="sr-stat-label">Attendance Rate</div>
+          <div className="sr-stat-value">
+            {stats.attendanceRatePercent === null ? '—' : `${stats.attendanceRatePercent}%`}
+          </div>
+        </div>
+        <div className="sr-stat">
+          <div className="sr-stat-label">Open Complaints</div>
+          <div className="sr-stat-value">
+            {(stats.complaintStats.find((c) => c.status === 'open')?.count || 0) +
+              (stats.complaintStats.find((c) => c.status === 'in_progress')?.count || 0)}
+          </div>
+        </div>
+      </div>
 
-      <Row className="g-4 mb-4">
-        <Col md={6}>
-          <Card>
-            <Card.Body>
-              <Card.Title>Subscription Status Distribution</Card.Title>
-              {stats.subscriptionDistribution.map((s) => (
-                <div key={s.status} className="mb-2">
-                  <div className="d-flex justify-content-between small mb-1">
-                    <Badge bg={subscriptionStatusColor[s.status] || 'secondary'}>{s.status}</Badge>
-                    <span>{s.count}</span>
-                  </div>
-                </div>
-              ))}
-              {stats.subscriptionDistribution.length === 0 && (
-                <p className="text-muted mb-0">No subscriptions yet</p>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={6}>
-          <Card>
-            <Card.Body>
-              <Card.Title>Complaint Status</Card.Title>
-              {stats.complaintStats.map((c) => (
-                <div key={c.status} className="mb-2">
-                  <div className="d-flex justify-content-between small mb-1">
-                    <Badge bg={complaintStatusColor[c.status] || 'secondary'}>{c.status.replace('_', ' ')}</Badge>
-                    <span>{c.count}</span>
-                  </div>
-                </div>
-              ))}
-              {stats.complaintStats.length === 0 && <p className="text-muted mb-0">No complaints yet</p>}
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+      <div className="sr-row sr-col-2" style={{ marginBottom: '1.5rem' }}>
+        <div className="sr-card">
+          <div className="sr-card-title">Subscription Status Distribution</div>
+          {stats.subscriptionDistribution.map((s) => (
+            <div key={s.status} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+              <span className={`sr-badge sr-badge-${subscriptionStatusColor[s.status] || 'muted'}`}>{s.status}</span>
+              <span>{s.count}</span>
+            </div>
+          ))}
+          {stats.subscriptionDistribution.length === 0 && (
+            <p className="sr-text-muted" style={{ margin: 0 }}>No subscriptions yet</p>
+          )}
+        </div>
+        <div className="sr-card">
+          <div className="sr-card-title">Complaint Status</div>
+          {stats.complaintStats.map((c) => (
+            <div key={c.status} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+              <span className={`sr-badge sr-badge-${complaintStatusColor[c.status] || 'muted'}`}>{c.status.replace('_', ' ')}</span>
+              <span>{c.count}</span>
+            </div>
+          ))}
+          {stats.complaintStats.length === 0 && <p className="sr-text-muted" style={{ margin: 0 }}>No complaints yet</p>}
+        </div>
+      </div>
 
-      <Card className="mb-4">
-        <Card.Body>
-          <Card.Title>Route Utilization</Card.Title>
-          <Table striped bordered hover responsive size="sm">
+      <div className="sr-card" style={{ marginBottom: '1.5rem' }}>
+        <div className="sr-card-title">Route Utilization</div>
+        <div className="sr-table-wrap">
+          <table className="sr-table">
             <thead>
               <tr>
                 <th>Route</th>
                 <th>City</th>
                 <th>Occupancy</th>
-                <th style={{ width: '35%' }}></th>
+                <th style={{ width: '35%' }}>Progress</th>
               </tr>
             </thead>
             <tbody>
@@ -182,73 +141,65 @@ export default function AdminDashboard() {
                     {r.currentOccupancy} / {r.capacity}
                   </td>
                   <td>
-                    <ProgressBar
-                      now={r.utilizationPercent}
-                      label={`${r.utilizationPercent}%`}
-                      variant={r.utilizationPercent >= 100 ? 'danger' : r.utilizationPercent >= 75 ? 'warning' : 'success'}
-                    />
+                    <div className="sr-progress">
+                      <div
+                        className={`sr-progress-bar${r.utilizationPercent >= 100 ? ' danger' : r.utilizationPercent >= 75 ? ' warn' : ''}`}
+                        style={{ width: `${r.utilizationPercent}%` }}
+                        title={`${r.utilizationPercent}%`}
+                      ></div>
+                    </div>
                   </td>
                 </tr>
               ))}
               {stats.routeUtilization.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="text-center text-muted">
+                <tr className="sr-table-empty">
+                  <td colSpan={4}>
                     No active routes yet
                   </td>
                 </tr>
               )}
             </tbody>
-          </Table>
-        </Card.Body>
-      </Card>
+          </table>
+        </div>
+      </div>
 
-      <Row className="g-4">
-        <Col md={6}>
-          <Card>
-            <Card.Body>
-              <Card.Title>Monthly Revenue (last 6 months)</Card.Title>
-              <div className="d-flex align-items-end gap-2" style={{ height: 140 }}>
-                {recentRevenue.map((m) => (
-                  <div key={`${m.year}-${m.month}`} className="text-center flex-grow-1">
-                    <div
-                      className="bg-primary rounded-top mx-auto"
-                      style={{
-                        height: `${Math.max(4, (m.total / maxRevenue) * 110)}px`,
-                        width: '60%',
-                      }}
-                      title={`₹${m.total}`}
-                    />
-                    <div className="small text-muted mt-1">{MONTH_NAMES[m.month - 1]}</div>
-                  </div>
-                ))}
-                {recentRevenue.length === 0 && <p className="text-muted mb-0">No revenue yet</p>}
+      <div className="sr-row sr-col-2">
+        <div className="sr-card">
+          <div className="sr-card-title">Monthly Revenue (last 6 months)</div>
+          <div className="sr-bar-chart">
+            {recentRevenue.map((m) => (
+              <div key={`${m.year}-${m.month}`} className="sr-bar-col">
+                <div
+                  className="sr-bar"
+                  style={{
+                    height: `${Math.max(4, (m.total / maxRevenue) * 110)}px`,
+                  }}
+                  title={`₹${m.total}`}
+                />
+                <div className="sr-bar-label">{MONTH_NAMES[m.month - 1]}</div>
               </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={6}>
-          <Card>
-            <Card.Body>
-              <Card.Title>Rider Registrations (last 14 days)</Card.Title>
-              <div className="d-flex align-items-end gap-1" style={{ height: 140 }}>
-                {recentTrend.map((t) => (
-                  <div key={t.date} className="text-center flex-grow-1">
-                    <div
-                      className="bg-success rounded-top mx-auto"
-                      style={{
-                        height: `${Math.max(4, (t.count / maxTrendCount) * 110)}px`,
-                        width: '70%',
-                      }}
-                      title={`${t.date}: ${t.count}`}
-                    />
-                  </div>
-                ))}
-                {recentTrend.length === 0 && <p className="text-muted mb-0">No registrations yet</p>}
+            ))}
+            {recentRevenue.length === 0 && <p className="sr-text-muted">No revenue yet</p>}
+          </div>
+        </div>
+        <div className="sr-card">
+          <div className="sr-card-title">Rider Registrations (last 14 days)</div>
+          <div className="sr-bar-chart sr-bar-alt">
+            {recentTrend.map((t) => (
+              <div key={t.date} className="sr-bar-col">
+                <div
+                  className="sr-bar"
+                  style={{
+                    height: `${Math.max(4, (t.count / maxTrendCount) * 110)}px`,
+                  }}
+                  title={`${t.date}: ${t.count}`}
+                />
               </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+            ))}
+            {recentTrend.length === 0 && <p className="sr-text-muted">No registrations yet</p>}
+          </div>
+        </div>
+      </div>
     </>
   );
 }

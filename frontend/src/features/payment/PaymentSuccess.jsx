@@ -1,28 +1,25 @@
 import { useParams, Link } from 'react-router-dom';
-import { Card, Button, Alert } from 'react-bootstrap';
 
 export default function PaymentSuccess() {
   const { id } = useParams();
 
   return (
-    <Card className="text-center">
-      <Card.Body className="py-5">
-        <div className="mb-3" style={{ fontSize: '3rem' }}>
-          ✅
-        </div>
-        <Card.Title>Payment Submitted</Card.Title>
-        <p className="text-muted">
-          Your payment was verified. It may take a few moments to fully confirm — refresh the subscription
-          page if it still shows as pending.
-        </p>
-        <Alert variant="secondary" className="small text-start">
-          Confirmation runs through Razorpay's webhook, not this page directly — that's what actually moves
-          your subscription forward to the admin's assignment queue.
-        </Alert>
-        <Button as={Link} to={`/subscriptions/${id}`}>
-          View Subscription
-        </Button>
-      </Card.Body>
-    </Card>
+    <div className="sr-card sr-success-card" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+      <div className="sr-success-icon" style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+        ✅
+      </div>
+      <h3 className="sr-card-title">Payment Submitted</h3>
+      <p className="sr-text-muted" style={{ marginBottom: '1.5rem' }}>
+        Your payment was verified. It may take a few moments to fully confirm — refresh the subscription
+        page if it still shows as pending.
+      </p>
+      <div className="sr-alert sr-alert-muted" style={{ textAlign: 'left', marginBottom: '1.5rem' }}>
+        Confirmation runs through Razorpay's webhook, not this page directly — that's what actually moves
+        your subscription forward to the admin's assignment queue.
+      </div>
+      <Link to={`/subscriptions/${id}`} className="sr-btn sr-btn-primary">
+        View Subscription
+      </Link>
+    </div>
   );
 }

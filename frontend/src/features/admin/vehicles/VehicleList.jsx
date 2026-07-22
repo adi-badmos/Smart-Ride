@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Table, Badge, Alert, Spinner, Row, Col, Form, Button } from 'react-bootstrap';
 import { fetchVehicles } from './vehicleService.js';
 import PaginationControls from '../../../components/PaginationControls.jsx';
 import VehicleForm from './VehicleForm.jsx';
@@ -43,83 +42,89 @@ export default function VehicleList() {
 
   return (
     <>
-      <h4 className="mb-3">Vehicles</h4>
-      <VehicleForm onCreated={loadVehicles} />
-      {error && <Alert variant="danger">{error}</Alert>}
+      <div className="sr-page-header">
+        <h1 className="sr-page-title">Vehicles</h1>
+      </div>
 
-      <Form onSubmit={handleSearchSubmit} className="mb-3">
-        <Row className="g-2">
-          <Col md={4}>
-            <Form.Control
-              placeholder="Search by registration number"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </Col>
-          <Col md={3}>
-            <Form.Select
-              value={type}
-              onChange={(e) => {
-                setPage(1);
-                setType(e.target.value);
-              }}
-            >
-              <option value="">All types</option>
-              <option value="sedan">Sedan</option>
-              <option value="suv">SUV</option>
-              <option value="van">Van</option>
-              <option value="bus">Bus</option>
-            </Form.Select>
-          </Col>
-          <Col md="auto">
-            <Button type="submit" variant="outline-primary">
-              Search
-            </Button>
-          </Col>
-        </Row>
-      </Form>
+      <VehicleForm onCreated={loadVehicles} />
+      
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+
+      <div className="sr-filter-row" style={{ marginBottom: '1rem' }}>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', width: '100%' }}>
+          <input
+            className="sr-input"
+            placeholder="Search by registration number"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ maxWidth: '280px' }}
+          />
+          <select
+            className="sr-select"
+            value={type}
+            onChange={(e) => {
+              setPage(1);
+              setType(e.target.value);
+            }}
+            style={{ maxWidth: '200px' }}
+          >
+            <option value="">All types</option>
+            <option value="sedan">Sedan</option>
+            <option value="suv">SUV</option>
+            <option value="van">Van</option>
+            <option value="bus">Bus</option>
+          </select>
+          <button type="submit" className="sr-btn sr-btn-outline">
+            Search
+          </button>
+        </form>
+      </div>
 
       {loading ? (
-        <Spinner animation="border" />
+        <div className="sr-spinner-wrap"><div className="sr-spinner" /></div>
       ) : (
         <>
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Reg. No.</th>
-                <th>Type</th>
-                <th>Capacity</th>
-                <th>Make / Model</th>
-                <th>Year</th>
-                <th>Assigned Driver</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {vehicles.map((v) => (
-                <tr key={v._id}>
-                  <td>{v.registrationNumber}</td>
-                  <td className="text-capitalize">{v.type}</td>
-                  <td>{v.capacity}</td>
-                  <td>
-                    {v.make} {v.model}
-                  </td>
-                  <td>{v.year}</td>
-                  <td>{v.driverProfile?.user?.name || '—'}</td>
-                  <td>
-                    <Badge bg={v.isActive ? 'success' : 'secondary'}>{v.isActive ? 'Active' : 'Inactive'}</Badge>
-                  </td>
-                </tr>
-              ))}
-              {vehicles.length === 0 && (
+          <div className="sr-table-wrap" style={{ marginBottom: '1rem' }}>
+            <table className="sr-table">
+              <thead>
                 <tr>
-                  <td colSpan={7} className="text-center text-muted">
-                    No vehicles found
-                  </td>
+                  <th>Reg. No.</th>
+                  <th>Type</th>
+                  <th>Capacity</th>
+                  <th>Make / Model</th>
+                  <th>Year</th>
+                  <th>Assigned Driver</th>
+                  <th>Status</th>
                 </tr>
-              )}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {vehicles.map((v) => (
+                  <tr key={v._id}>
+                    <td>{v.registrationNumber}</td>
+                    <td className="sr-capitalize">{v.type}</td>
+                    <td>{v.capacity}</td>
+                    <td>
+                      {v.make} {v.model}
+                    </td>
+                    <td>{v.year}</td>
+                    <td>{v.driverProfile?.user?.name || '—'}</td>
+                    <td>
+                      <span className={`sr-badge ${v.isActive ? 'sr-badge-success' : 'sr-badge-muted'}`}>
+                        {v.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {vehicles.length === 0 && (
+                  <tr className="sr-table-empty">
+                    <td colSpan={7}>
+                      No vehicles found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
           <PaginationControls pagination={pagination} onPageChange={setPage} />
         </>
       )}

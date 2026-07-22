@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Form, Button, Alert, Row, Col, Card } from 'react-bootstrap';
 import { createDriverRequest } from '../adminService.js';
 
 const emptyForm = {
@@ -37,56 +36,56 @@ export default function CreateDriverForm({ onCreated }) {
   };
 
   return (
-    <Card className="mb-4">
-      <Card.Body>
-        <Card.Title>Create Driver Account</Card.Title>
-        {error && <Alert variant="danger">{error}</Alert>}
-        {success && <Alert variant="success">{success}</Alert>}
-        <Form onSubmit={handleSubmit}>
-          <Row className="g-3">
-            <Col md={6}>
-              <Form.Label>Name</Form.Label>
-              <Form.Control name="name" value={form.name} onChange={handleChange} required />
-            </Col>
-            <Col md={6}>
-              <Form.Label>Email</Form.Label>
-              <Form.Control type="email" name="email" value={form.email} onChange={handleChange} required />
-            </Col>
-            <Col md={6}>
-              <Form.Label>Phone</Form.Label>
-              <Form.Control name="phone" value={form.phone} onChange={handleChange} required />
-            </Col>
-            <Col md={6}>
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                minLength={8}
-                required
-              />
-            </Col>
-            <Col md={6}>
-              <Form.Label>License Number</Form.Label>
-              <Form.Control name="licenseNumber" value={form.licenseNumber} onChange={handleChange} required />
-            </Col>
-            <Col md={6}>
-              <Form.Label>License Expiry</Form.Label>
-              <Form.Control
-                type="date"
-                name="licenseExpiry"
-                value={form.licenseExpiry}
-                onChange={handleChange}
-                required
-              />
-            </Col>
-          </Row>
-          <Button type="submit" className="mt-3" disabled={submitting}>
-            {submitting ? 'Creating...' : 'Create Driver'}
-          </Button>
-        </Form>
-      </Card.Body>
-    </Card>
+    <div className="sr-card" style={{ marginBottom: '1.5rem' }}>
+      <div className="sr-card-title">Add Driver</div>
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+      {success && <div className="sr-alert sr-alert-success">{success}</div>}
+      <form onSubmit={handleSubmit}>
+        <div className="sr-row sr-col-2" style={{ gap: '1rem', marginBottom: '1rem' }}>
+          <div className="sr-form-group">
+            <label className="sr-label">Name</label>
+            <input className="sr-input" name="name" value={form.name} onChange={handleChange} required />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Email</label>
+            <input className="sr-input" type="email" name="email" value={form.email} onChange={handleChange} required />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Phone</label>
+            <input className="sr-input" name="phone" value={form.phone} onChange={handleChange} required />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Password</label>
+            <input
+              className="sr-input"
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              minLength={8}
+              required
+            />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">License Number</label>
+            <input className="sr-input" name="licenseNumber" value={form.licenseNumber} onChange={handleChange} required />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">License Expiry</label>
+            <input
+              className="sr-input"
+              type="date"
+              name="licenseExpiry"
+              value={form.licenseExpiry}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        </div>
+        <button type="submit" className="sr-btn sr-btn-primary" disabled={submitting}>
+          {submitting ? 'Creating...' : 'Create Driver'}
+        </button>
+      </form>
+    </div>
   );
 }

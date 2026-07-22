@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Table, Badge, Alert, Spinner, Button, Row, Col, Form } from 'react-bootstrap';
 import { fetchRoutes, deleteRouteRequest } from './routeService.js';
 import PaginationControls from '../../../components/PaginationControls.jsx';
 import RouteForm from './RouteForm.jsx';
@@ -52,7 +51,10 @@ export default function RouteList() {
 
   return (
     <>
-      <h4 className="mb-3">Routes</h4>
+      <div className="sr-page-header">
+        <h1 className="sr-page-title">Routes</h1>
+      </div>
+
       <RouteForm
         initialRoute={editing}
         onSaved={() => {
@@ -60,76 +62,81 @@ export default function RouteList() {
           loadRoutes();
         }}
       />
-      {error && <Alert variant="danger">{error}</Alert>}
+      
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
 
-      <Form onSubmit={handleSearchSubmit} className="mb-3">
-        <Row className="g-2">
-          <Col md={4}>
-            <Form.Control
-              placeholder="Search by route name"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </Col>
-          <Col md="auto">
-            <Button type="submit" variant="outline-primary">
-              Search
-            </Button>
-          </Col>
-        </Row>
-      </Form>
+      <div className="sr-filter-row" style={{ marginBottom: '1rem' }}>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', width: '100%' }}>
+          <input
+            className="sr-input"
+            placeholder="Search by route name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ maxWidth: '280px' }}
+          />
+          <button type="submit" className="sr-btn sr-btn-outline">
+            Search
+          </button>
+        </form>
+      </div>
 
       {loading ? (
-        <Spinner animation="border" />
+        <div className="sr-spinner-wrap"><div className="sr-spinner" /></div>
       ) : (
         <>
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>City</th>
-                <th>Pickup Points</th>
-                <th>Driver</th>
-                <th>Vehicle</th>
-                <th>Capacity</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {routes.map((r) => (
-                <tr key={r._id}>
-                  <td>{r.name}</td>
-                  <td>{r.city}</td>
-                  <td>{r.pickupPoints.length}</td>
-                  <td>{r.driver?.user?.name || '—'}</td>
-                  <td>{r.vehicle?.registrationNumber || '—'}</td>
-                  <td>{r.capacity}</td>
-                  <td>
-                    <Badge bg={r.status === 'active' ? 'success' : 'secondary'}>{r.status}</Badge>
-                  </td>
-                  <td className="d-flex gap-2">
-                    <Button size="sm" variant="outline-primary" onClick={() => setSelected(r)}>
-                      View
-                    </Button>
-                    <Button size="sm" variant="outline-secondary" onClick={() => setEditing(r)}>
-                      Edit
-                    </Button>
-                    <Button size="sm" variant="outline-danger" onClick={() => handleDelete(r._id)}>
-                      Delete
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-              {routes.length === 0 && (
+          <div className="sr-table-wrap" style={{ marginBottom: '1rem' }}>
+            <table className="sr-table">
+              <thead>
                 <tr>
-                  <td colSpan={8} className="text-center text-muted">
-                    No routes found
-                  </td>
+                  <th>Name</th>
+                  <th>City</th>
+                  <th>Pickup Points</th>
+                  <th>Driver</th>
+                  <th>Vehicle</th>
+                  <th>Capacity</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {routes.map((r) => (
+                  <tr key={r._id}>
+                    <td>{r.name}</td>
+                    <td>{r.city}</td>
+                    <td>{r.pickupPoints.length}</td>
+                    <td>{r.driver?.user?.name || '—'}</td>
+                    <td>{r.vehicle?.registrationNumber || '—'}</td>
+                    <td>{r.capacity}</td>
+                    <td>
+                      <span className={`sr-badge ${r.status === 'active' ? 'sr-badge-success' : 'sr-badge-muted'}`}>
+                        {r.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className="sr-btn sr-btn-sm sr-btn-outline" onClick={() => setSelected(r)}>
+                          View
+                        </button>
+                        <button className="sr-btn sr-btn-sm sr-btn-outline" onClick={() => setEditing(r)}>
+                          Edit
+                        </button>
+                        <button className="sr-btn sr-btn-sm sr-btn-danger" onClick={() => handleDelete(r._id)}>
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {routes.length === 0 && (
+                  <tr className="sr-table-empty">
+                    <td colSpan={8}>
+                      No routes found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
           <PaginationControls pagination={pagination} onPageChange={setPage} />
         </>
       )}

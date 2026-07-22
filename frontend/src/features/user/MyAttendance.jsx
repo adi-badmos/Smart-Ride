@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Table, Badge, Alert, Spinner } from 'react-bootstrap';
 import { fetchMyAttendance } from './attendanceService.js';
 
 const statusColor = { present: 'success', absent: 'danger', leave: 'warning' };
@@ -16,39 +15,43 @@ export default function MyAttendance() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading) return (
+    <div className="sr-spinner-wrap">
+      <div className="sr-spinner" />
+    </div>
+  );
 
   return (
     <>
-      <h4 className="mb-3">My Attendance</h4>
-      {error && <Alert variant="danger">{error}</Alert>}
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Route</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {records.map((r) => (
-            <tr key={r._id}>
-              <td>{new Date(r.date).toLocaleDateString()}</td>
-              <td>{r.route?.name}</td>
-              <td>
-                <Badge bg={statusColor[r.status]}>{r.status}</Badge>
-              </td>
-            </tr>
-          ))}
-          {records.length === 0 && (
+      <h4 className="sr-page-title">My Attendance</h4>
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+      <div className="sr-table-wrap">
+        <table className="sr-table">
+          <thead>
             <tr>
-              <td colSpan={3} className="text-center text-muted">
-                No attendance records yet
-              </td>
+              <th>Date</th>
+              <th>Route</th>
+              <th>Status</th>
             </tr>
-          )}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {records.map((r) => (
+              <tr key={r._id}>
+                <td>{new Date(r.date).toLocaleDateString()}</td>
+                <td>{r.route?.name}</td>
+                <td>
+                  <span className={`sr-badge sr-badge-${statusColor[r.status]}`}>{r.status}</span>
+                </td>
+              </tr>
+            ))}
+            {records.length === 0 && (
+              <tr className="sr-table-empty">
+                <td colSpan={3}>No attendance records yet</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Modal, Badge, Form, Button, Alert } from 'react-bootstrap';
 import { updateComplaintRequest } from './complaintAdminService.js';
 
 const STATUSES = ['open', 'in_progress', 'resolved', 'closed'];
-const statusColor = { open: 'warning', in_progress: 'info', resolved: 'success', closed: 'secondary' };
+const statusColor = { open: 'warning', in_progress: 'info', resolved: 'success', closed: 'muted' };
 
 export default function ComplaintDetail({ complaint, onClose, onUpdated }) {
   const [status, setStatus] = useState(complaint.status);
@@ -25,49 +24,58 @@ export default function ComplaintDetail({ complaint, onClose, onUpdated }) {
   };
 
   return (
-    <Modal show onHide={onClose}>
-      <Modal.Header closeButton>
-        <Modal.Title>
-          {complaint.subject} <Badge bg={statusColor[complaint.status]}>{complaint.status}</Badge>
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        {error && <Alert variant="danger">{error}</Alert>}
-        <p className="text-muted small">
-          Filed by {complaint.user?.name} ({complaint.user?.email}) — {complaint.type}, {complaint.priority}{' '}
-          priority
-        </p>
-        <p>{complaint.description}</p>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
+      <div className="sr-card" style={{ width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div className="sr-card-title" style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {complaint.subject}
+            <span className={`sr-badge sr-badge-${statusColor[complaint.status]}`}>{complaint.status.replace('_', ' ')}</span>
+          </div>
+          <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }} onClick={onClose}>
+            &times;
+          </button>
+        </div>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Status</Form.Label>
-          <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
+        {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+
+        <p className="sr-text-muted" style={{ fontSize: '0.875rem', marginBottom: '1rem' }}>
+          Filed by {complaint.user?.name} ({complaint.user?.email}) — <span className="sr-capitalize">{complaint.type}</span>, <span className="sr-capitalize">{complaint.priority}</span> priority
+        </p>
+        
+        <div style={{ background: 'var(--bg-main)', padding: '1rem', borderRadius: '4px', marginBottom: '1.5rem', border: '1px solid var(--border-color)' }}>
+          {complaint.description}
+        </div>
+
+        <div className="sr-form-group">
+          <label className="sr-label">Status</label>
+          <select className="sr-select" value={status} onChange={(e) => setStatus(e.target.value)}>
             {STATUSES.map((s) => (
               <option key={s} value={s}>
                 {s.replace('_', ' ')}
               </option>
             ))}
-          </Form.Select>
-        </Form.Group>
+          </select>
+        </div>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Admin Response</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
+        <div className="sr-form-group">
+          <label className="sr-label">Admin Response</label>
+          <textarea
+            className="sr-textarea"
+            rows={4}
             value={adminResponse}
             onChange={(e) => setAdminResponse(e.target.value)}
           />
-        </Form.Group>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button onClick={handleSave} disabled={submitting}>
-          {submitting ? 'Saving...' : 'Save'}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '2rem' }}>
+          <button className="sr-btn sr-btn-outline" onClick={onClose}>
+            Cancel
+          </button>
+          <button className="sr-btn sr-btn-primary" onClick={handleSave} disabled={submitting}>
+            {submitting ? 'Saving...' : 'Save'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

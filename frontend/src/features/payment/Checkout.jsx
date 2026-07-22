@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Button, Alert, Spinner } from 'react-bootstrap';
 import { fetchSubscriptionById } from '../subscription/subscriptionService.js';
 import { createOrderRequest, verifyPaymentRequest } from './paymentService.js';
 
@@ -71,32 +70,38 @@ export default function Checkout() {
     }
   };
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading) return (
+    <div className="sr-spinner-wrap">
+      <div className="sr-spinner" />
+    </div>
+  );
   if (!subscription) return null;
 
   if (subscription.status !== 'PAYMENT_PENDING') {
-    return <Alert variant="info">This subscription has already been paid for.</Alert>;
+    return <div className="sr-alert sr-alert-info">This subscription has already been paid for.</div>;
   }
 
   return (
-    <Card>
-      <Card.Body>
-        <Card.Title>Checkout</Card.Title>
-        {error && <Alert variant="danger">{error}</Alert>}
-        <p className="mb-1">
-          <strong>Plan:</strong> {subscription.plan?.name}
-        </p>
-        <p className="mb-3">
-          <strong>Amount:</strong> ₹{subscription.plan?.price}
-        </p>
-        <Alert variant="secondary" className="small">
-          Sandbox/test mode — use Razorpay's test card numbers until real keys are configured. No real
-          charge occurs in test mode.
-        </Alert>
-        <Button onClick={handlePay} disabled={paying}>
-          {paying ? 'Processing...' : 'Pay Now'}
-        </Button>
-      </Card.Body>
-    </Card>
+    <div className="sr-card">
+      <h3 className="sr-card-title">Checkout</h3>
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+      
+      <div className="sr-detail-grid" style={{ marginBottom: '1.5rem' }}>
+        <div className="sr-detail-label">Plan</div>
+        <div className="sr-detail-value">{subscription.plan?.name}</div>
+        
+        <div className="sr-detail-label">Amount</div>
+        <div className="sr-detail-value">₹{subscription.plan?.price}</div>
+      </div>
+      
+      <div className="sr-alert sr-alert-muted">
+        Sandbox/test mode — use Razorpay's test card numbers until real keys are configured. No real
+        charge occurs in test mode.
+      </div>
+      
+      <button className="sr-btn sr-btn-primary" onClick={handlePay} disabled={paying}>
+        {paying ? 'Processing...' : 'Pay Now'}
+      </button>
+    </div>
   );
 }

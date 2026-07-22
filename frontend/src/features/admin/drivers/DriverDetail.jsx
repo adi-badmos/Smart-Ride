@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Badge, Table, Form, Button, Alert, Spinner, Row, Col } from 'react-bootstrap';
 import { fetchDriverById, verifyDriverRequest } from '../adminService.js';
 
 const verificationColor = { pending: 'warning', in_review: 'info', approved: 'success', rejected: 'danger' };
-const docStatusColor = { pending: 'secondary', approved: 'success', rejected: 'danger' };
+const docStatusColor = { pending: 'muted', approved: 'success', rejected: 'danger' };
 
 export default function DriverDetail() {
   const { id } = useParams();
@@ -46,70 +45,63 @@ export default function DriverDetail() {
     }
   };
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading) return <div className="sr-spinner-wrap"><div className="sr-spinner" /></div>;
   if (!driver) return null;
 
   return (
     <>
-      <h4 className="mb-3">Driver Detail</h4>
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
+      <div className="sr-page-header">
+        <h1 className="sr-page-title">Driver Detail</h1>
+      </div>
+      
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+      {success && <div className="sr-alert sr-alert-success">{success}</div>}
 
-      <Card className="mb-4">
-        <Card.Body>
-          <Row className="g-3 mb-3">
-            <Col md={6}>
-              <p className="mb-1">
-                <strong>Name</strong>
-              </p>
-              <p className="text-muted">{driver.user?.name}</p>
-            </Col>
-            <Col md={6}>
-              <p className="mb-1">
-                <strong>Email</strong>
-              </p>
-              <p className="text-muted">{driver.user?.email}</p>
-            </Col>
-            <Col md={6}>
-              <p className="mb-1">
-                <strong>Phone</strong>
-              </p>
-              <p className="text-muted">{driver.user?.phone}</p>
-            </Col>
-            <Col md={6}>
-              <p className="mb-1">
-                <strong>License</strong>
-              </p>
-              <p className="text-muted">
-                {driver.licenseNumber} (expires {new Date(driver.licenseExpiry).toLocaleDateString()})
-              </p>
-            </Col>
-          </Row>
+      <div className="sr-card" style={{ marginBottom: '1.5rem' }}>
+        <div className="sr-detail-grid" style={{ marginBottom: '1.5rem' }}>
+          <div>
+            <div className="sr-detail-label">Name</div>
+            <div className="sr-detail-value">{driver.user?.name}</div>
+          </div>
+          <div>
+            <div className="sr-detail-label">Email</div>
+            <div className="sr-detail-value">{driver.user?.email}</div>
+          </div>
+          <div>
+            <div className="sr-detail-label">Phone</div>
+            <div className="sr-detail-value">{driver.user?.phone}</div>
+          </div>
+          <div>
+            <div className="sr-detail-label">License</div>
+            <div className="sr-detail-value">
+              {driver.licenseNumber} (expires {new Date(driver.licenseExpiry).toLocaleDateString()})
+            </div>
+          </div>
+        </div>
 
-          <p className="mb-2">
-            <strong>Current Status:</strong>{' '}
-            <Badge bg={verificationColor[driver.verificationStatus]}>{driver.verificationStatus}</Badge>
-          </p>
+        <p style={{ marginBottom: '1rem' }}>
+          <strong style={{ color: 'var(--text-main)' }}>Current Status:</strong>{' '}
+          <span className={`sr-badge sr-badge-${verificationColor[driver.verificationStatus]}`}>{driver.verificationStatus}</span>
+        </p>
 
-          <Form.Group className="mb-2" style={{ maxWidth: 300 }}>
-            <Form.Label>Update Verification Status</Form.Label>
-            <Form.Select value={nextStatus} onChange={(e) => setNextStatus(e.target.value)}>
-              <option value="pending">Pending</option>
-              <option value="in_review">In Review</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </Form.Select>
-          </Form.Group>
-          <Button onClick={handleVerify} disabled={submitting || nextStatus === driver.verificationStatus}>
-            {submitting ? 'Updating...' : 'Update Status'}
-          </Button>
-        </Card.Body>
-      </Card>
+        <div className="sr-form-group" style={{ maxWidth: '300px', marginBottom: '1rem' }}>
+          <label className="sr-label">Update Verification Status</label>
+          <select className="sr-select" value={nextStatus} onChange={(e) => setNextStatus(e.target.value)}>
+            <option value="pending">Pending</option>
+            <option value="in_review">In Review</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <button className="sr-btn sr-btn-primary" onClick={handleVerify} disabled={submitting || nextStatus === driver.verificationStatus}>
+          {submitting ? 'Updating...' : 'Update Status'}
+        </button>
+      </div>
 
-      <Card>
-        <Card.Body>
-          <Card.Title>Documents</Card.Title>
-          <Table striped bordered hover responsive>
+      <div className="sr-card">
+        <div className="sr-card-title">Documents</div>
+        <div className="sr-table-wrap">
+          <table className="sr-table">
             <thead>
               <tr>
                 <th>Type</th>
@@ -120,28 +112,28 @@ export default function DriverDetail() {
             <tbody>
               {driver.documents.map((d) => (
                 <tr key={d._id}>
-                  <td className="text-capitalize">{d.type.replace('_', ' ')}</td>
+                  <td className="sr-capitalize">{d.type.replace('_', ' ')}</td>
                   <td>
-                    <Badge bg={docStatusColor[d.status]}>{d.status}</Badge>
+                    <span className={`sr-badge sr-badge-${docStatusColor[d.status]}`}>{d.status}</span>
                   </td>
                   <td>
-                    <a href={d.url} target="_blank" rel="noreferrer">
+                    <a href={d.url} target="_blank" rel="noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>
                       View
                     </a>
                   </td>
                 </tr>
               ))}
               {driver.documents.length === 0 && (
-                <tr>
-                  <td colSpan={3} className="text-center text-muted">
+                <tr className="sr-table-empty">
+                  <td colSpan={3}>
                     No documents uploaded yet
                   </td>
                 </tr>
               )}
             </tbody>
-          </Table>
-        </Card.Body>
-      </Card>
+          </table>
+        </div>
+      </div>
     </>
   );
 }

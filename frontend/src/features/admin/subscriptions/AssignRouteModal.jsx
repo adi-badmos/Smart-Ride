@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import { fetchRoutes, fetchRouteOccupancy } from '../routes/routeService.js';
 import { assignRouteRequest } from './subscriptionAdminService.js';
 
@@ -53,42 +52,45 @@ export default function AssignRouteModal({ subscription, show, onClose, onAssign
     }
   };
 
+  if (!show) return null;
+
   return (
-    <Modal show={show} onHide={onClose}>
-      <Modal.Header closeButton>
-        <Modal.Title>Assign Route</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        {error && <Alert variant="danger">{error}</Alert>}
-        <p className="text-muted small">
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
+      <div className="sr-card" style={{ width: '100%', maxWidth: '480px', maxHeight: '80vh', overflowY: 'auto' }}>
+        <div className="sr-card-title">Assign Route</div>
+        
+        {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+        
+        <p className="sr-text-muted" style={{ fontSize: '0.875rem', marginBottom: '1.5rem' }}>
           Rider: {subscription?.user?.name} — {subscription?.homeAddress?.address} →{' '}
           {subscription?.desiredDestination?.address}
         </p>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Route</Form.Label>
-          <Form.Select value={selectedRouteId} onChange={(e) => setSelectedRouteId(e.target.value)}>
+        <div className="sr-form-group">
+          <label className="sr-label">Route</label>
+          <select className="sr-select" value={selectedRouteId} onChange={(e) => setSelectedRouteId(e.target.value)}>
             <option value="">Select a route</option>
             {routes.map((r) => (
               <option key={r._id} value={r._id}>
                 {r.name} ({r.city})
               </option>
             ))}
-          </Form.Select>
-        </Form.Group>
+          </select>
+        </div>
 
         {occupancy && (
-          <Alert variant={occupancy.currentOccupancy >= occupancy.capacity ? 'warning' : 'secondary'}>
+          <div className={`sr-alert sr-alert-${occupancy.currentOccupancy >= occupancy.capacity ? 'warning' : 'muted'}`} style={{ marginBottom: '1rem' }}>
             Occupancy: {occupancy.currentOccupancy} / {occupancy.capacity}
             {occupancy.currentOccupancy >= occupancy.capacity &&
               ' — this route is at or over capacity. You can still assign, but consider adding another route or vehicle.'}
-          </Alert>
+          </div>
         )}
 
         {selectedRoute && (
-          <Form.Group className="mb-3">
-            <Form.Label>Pickup Point</Form.Label>
-            <Form.Select
+          <div className="sr-form-group">
+            <label className="sr-label">Pickup Point</label>
+            <select
+              className="sr-select"
               value={selectedPickupPointId}
               onChange={(e) => setSelectedPickupPointId(e.target.value)}
             >
@@ -98,18 +100,19 @@ export default function AssignRouteModal({ subscription, show, onClose, onAssign
                   {p.name} — {p.address}
                 </option>
               ))}
-            </Form.Select>
-          </Form.Group>
+            </select>
+          </div>
         )}
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button onClick={handleAssign} disabled={submitting}>
-          {submitting ? 'Assigning...' : 'Assign & Activate'}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '2rem' }}>
+          <button className="sr-btn sr-btn-outline" onClick={onClose}>
+            Cancel
+          </button>
+          <button className="sr-btn sr-btn-primary" onClick={handleAssign} disabled={submitting}>
+            {submitting ? 'Assigning...' : 'Assign & Activate'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

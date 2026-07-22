@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Table, Badge, Button, Alert, Spinner, Row, Col, Form } from 'react-bootstrap';
 import { fetchUsers, updateUserStatusRequest } from './adminService.js';
 import PaginationControls from '../../components/PaginationControls.jsx';
 
@@ -50,74 +49,75 @@ export default function UserManagement() {
 
   return (
     <>
-      <h4 className="mb-3">Manage Users</h4>
-      {error && <Alert variant="danger">{error}</Alert>}
+      <div className="sr-page-header">
+        <h1 className="sr-page-title">Manage Users</h1>
+      </div>
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
 
-      <Form onSubmit={handleSearchSubmit} className="mb-3">
-        <Row className="g-2">
-          <Col md={4}>
-            <Form.Control
-              placeholder="Search by name or email"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </Col>
-          <Col md="auto">
-            <Button type="submit" variant="outline-primary">
-              Search
-            </Button>
-          </Col>
-        </Row>
-      </Form>
+      <div className="sr-filter-row" style={{ marginBottom: '1rem' }}>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', width: '100%' }}>
+          <input
+            className="sr-input"
+            placeholder="Search by name or email"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ maxWidth: '280px' }}
+          />
+          <button type="submit" className="sr-btn sr-btn-outline">
+            Search
+          </button>
+        </form>
+      </div>
 
       {loading ? (
-        <Spinner animation="border" />
+        <div className="sr-spinner-wrap"><div className="sr-spinner" /></div>
       ) : (
         <>
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u._id}>
-                  <td>{u.name}</td>
-                  <td>{u.email}</td>
-                  <td>{u.phone}</td>
-                  <td>
-                    <Badge bg={u.isActive ? 'success' : 'secondary'}>
-                      {u.isActive ? 'Active' : 'Deactivated'}
-                    </Badge>
-                  </td>
-                  <td>{new Date(u.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <Button
-                      size="sm"
-                      variant={u.isActive ? 'outline-danger' : 'outline-success'}
-                      disabled={updatingId === u._id}
-                      onClick={() => toggleStatus(u._id, u.isActive)}
-                    >
-                      {u.isActive ? 'Deactivate' : 'Activate'}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-              {users.length === 0 && (
+          <div className="sr-table-wrap" style={{ marginBottom: '1rem' }}>
+            <table className="sr-table">
+              <thead>
                 <tr>
-                  <td colSpan={6} className="text-center text-muted">
-                    No users found
-                  </td>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Joined</th>
+                  <th>Action</th>
                 </tr>
-              )}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {users.map((u) => (
+                  <tr key={u._id}>
+                    <td>{u.name}</td>
+                    <td>{u.email}</td>
+                    <td>{u.phone}</td>
+                    <td>
+                      <span className={`sr-badge ${u.isActive ? 'sr-badge-success' : 'sr-badge-muted'}`}>
+                        {u.isActive ? 'Active' : 'Deactivated'}
+                      </span>
+                    </td>
+                    <td>{new Date(u.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <button
+                        className={`sr-btn sr-btn-sm ${u.isActive ? 'sr-btn-danger' : 'sr-btn-success'}`}
+                        disabled={updatingId === u._id}
+                        onClick={() => toggleStatus(u._id, u.isActive)}
+                      >
+                        {u.isActive ? 'Deactivate' : 'Activate'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {users.length === 0 && (
+                  <tr className="sr-table-empty">
+                    <td colSpan={6}>
+                      No users found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
           <PaginationControls pagination={pagination} onPageChange={setPage} />
         </>
       )}

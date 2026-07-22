@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Card, Table, Form, Alert, Spinner, Badge } from 'react-bootstrap';
 import { fetchMyRoute } from '../driverService.js';
 import { fetchRouteAttendance } from './attendanceService.js';
 
@@ -31,23 +30,31 @@ export default function AttendanceHistory() {
 
   return (
     <>
-      <h4 className="mb-3">Attendance History</h4>
-      {error && <Alert variant="danger">{error}</Alert>}
+      <h4 className="sr-page-title">Attendance History</h4>
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
 
-      <Form.Group className="mb-3" style={{ maxWidth: 250 }}>
-        <Form.Label>Date</Form.Label>
-        <Form.Control type="date" value={date} onChange={(e) => setDate(e.target.value)} max={todayStr()} />
-      </Form.Group>
+      <div className="sr-form-group" style={{ maxWidth: 220, marginBottom: '1.5rem' }}>
+        <label className="sr-label">Date</label>
+        <input 
+          className="sr-input" 
+          type="date" 
+          value={date} 
+          onChange={(e) => setDate(e.target.value)} 
+          max={todayStr()} 
+        />
+      </div>
 
-      {!route && <Alert variant="info">You don't have an assigned route yet.</Alert>}
+      {!route && <div className="sr-alert sr-alert-info">You don't have an assigned route yet.</div>}
 
       {route && (
-        <Card>
-          <Card.Body>
-            {loading ? (
-              <Spinner animation="border" />
-            ) : (
-              <Table striped bordered hover responsive>
+        <div className="sr-card">
+          {loading ? (
+            <div className="sr-spinner-wrap">
+              <div className="sr-spinner" />
+            </div>
+          ) : (
+            <div className="sr-table-wrap">
+              <table className="sr-table">
                 <thead>
                   <tr>
                     <th>Rider</th>
@@ -60,23 +67,21 @@ export default function AttendanceHistory() {
                     <tr key={r._id}>
                       <td>{r.user?.name}</td>
                       <td>
-                        <Badge bg={statusColor[r.status]}>{r.status}</Badge>
+                        <span className={`sr-badge sr-badge-${statusColor[r.status]}`}>{r.status}</span>
                       </td>
                       <td>{r.notes || '—'}</td>
                     </tr>
                   ))}
                   {records.length === 0 && (
-                    <tr>
-                      <td colSpan={3} className="text-center text-muted">
-                        No attendance marked for this date
-                      </td>
+                    <tr className="sr-table-empty">
+                      <td colSpan={3}>No attendance marked for this date</td>
                     </tr>
                   )}
                 </tbody>
-              </Table>
-            )}
-          </Card.Body>
-        </Card>
+              </table>
+            </div>
+          )}
+        </div>
       )}
     </>
   );

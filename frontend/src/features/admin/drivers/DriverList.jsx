@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Table, Badge, Alert, Spinner, Button, Row, Col, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { fetchDrivers } from '../adminService.js';
 import PaginationControls from '../../../components/PaginationControls.jsx';
@@ -44,87 +43,91 @@ export default function DriverList() {
 
   return (
     <>
-      <h4 className="mb-3">Drivers</h4>
+      <div className="sr-page-header">
+        <h1 className="sr-page-title">Drivers</h1>
+      </div>
+      
       <CreateDriverForm onCreated={loadDrivers} />
-      {error && <Alert variant="danger">{error}</Alert>}
+      
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
 
-      <Form onSubmit={handleSearchSubmit} className="mb-3">
-        <Row className="g-2">
-          <Col md={4}>
-            <Form.Control
-              placeholder="Search by name or email"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </Col>
-          <Col md={3}>
-            <Form.Select
-              value={verificationStatus}
-              onChange={(e) => {
-                setPage(1);
-                setVerificationStatus(e.target.value);
-              }}
-            >
-              <option value="">All verification statuses</option>
-              <option value="pending">Pending</option>
-              <option value="in_review">In Review</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </Form.Select>
-          </Col>
-          <Col md="auto">
-            <Button type="submit" variant="outline-primary">
-              Search
-            </Button>
-          </Col>
-        </Row>
-      </Form>
+      <div className="sr-filter-row" style={{ marginBottom: '1rem' }}>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', width: '100%' }}>
+          <input
+            className="sr-input"
+            placeholder="Search by name or email"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ maxWidth: '280px' }}
+          />
+          <select
+            className="sr-select"
+            value={verificationStatus}
+            onChange={(e) => {
+              setPage(1);
+              setVerificationStatus(e.target.value);
+            }}
+            style={{ maxWidth: '240px' }}
+          >
+            <option value="">All verification statuses</option>
+            <option value="pending">Pending</option>
+            <option value="in_review">In Review</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <button type="submit" className="sr-btn sr-btn-outline">
+            Search
+          </button>
+        </form>
+      </div>
 
       {loading ? (
-        <Spinner animation="border" />
+        <div className="sr-spinner-wrap"><div className="sr-spinner" /></div>
       ) : (
         <>
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>License No.</th>
-                <th>License Expiry</th>
-                <th>Verification</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {drivers.map((d) => (
-                <tr key={d._id}>
-                  <td>{d.user?.name}</td>
-                  <td>{d.user?.email}</td>
-                  <td>{d.user?.phone}</td>
-                  <td>{d.licenseNumber}</td>
-                  <td>{new Date(d.licenseExpiry).toLocaleDateString()}</td>
-                  <td>
-                    <Badge bg={d.verificationStatus === 'approved' ? 'success' : 'secondary'}>
-                      {d.verificationStatus}
-                    </Badge>
-                  </td>
-                  <td>
-                    <Button as={Link} to={`/admin/drivers/${d._id}`} size="sm" variant="outline-primary">
-                      View
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-              {drivers.length === 0 && (
+          <div className="sr-table-wrap" style={{ marginBottom: '1rem' }}>
+            <table className="sr-table">
+              <thead>
                 <tr>
-                  <td colSpan={7} className="text-center text-muted">
-                    No drivers found
-                  </td>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>License No.</th>
+                  <th>License Expiry</th>
+                  <th>Verification</th>
+                  <th></th>
                 </tr>
-              )}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {drivers.map((d) => (
+                  <tr key={d._id}>
+                    <td>{d.user?.name}</td>
+                    <td>{d.user?.email}</td>
+                    <td>{d.user?.phone}</td>
+                    <td>{d.licenseNumber}</td>
+                    <td>{new Date(d.licenseExpiry).toLocaleDateString()}</td>
+                    <td>
+                      <span className={`sr-badge ${d.verificationStatus === 'approved' ? 'sr-badge-success' : 'sr-badge-muted'}`}>
+                        {d.verificationStatus}
+                      </span>
+                    </td>
+                    <td>
+                      <Link to={`/admin/drivers/${d._id}`} className="sr-btn sr-btn-outline sr-btn-sm">
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+                {drivers.length === 0 && (
+                  <tr className="sr-table-empty">
+                    <td colSpan={7}>
+                      No drivers found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
           <PaginationControls pagination={pagination} onPageChange={setPage} />
         </>
       )}

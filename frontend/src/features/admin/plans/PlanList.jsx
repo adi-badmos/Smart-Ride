@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Table, Badge, Alert, Spinner, Button } from 'react-bootstrap';
 import { fetchPlansAdmin, deactivatePlanRequest } from './planAdminService.js';
 import PlanForm from './PlanForm.jsx';
 
@@ -35,11 +34,14 @@ export default function PlanList() {
     }
   };
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading) return <div className="sr-spinner-wrap"><div className="sr-spinner" /></div>;
 
   return (
     <>
-      <h4 className="mb-3">Subscription Plans</h4>
+      <div className="sr-page-header">
+        <h1 className="sr-page-title">Subscription Plans</h1>
+      </div>
+
       <PlanForm
         initialPlan={editing}
         onSaved={() => {
@@ -48,47 +50,55 @@ export default function PlanList() {
         }}
         onCancelEdit={() => setEditing(null)}
       />
-      {error && <Alert variant="danger">{error}</Alert>}
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Duration</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {plans.map((p) => (
-            <tr key={p._id}>
-              <td>{p.name}</td>
-              <td>{p.duration} days</td>
-              <td>₹{p.price}</td>
-              <td>
-                <Badge bg={p.isActive ? 'success' : 'secondary'}>{p.isActive ? 'Active' : 'Inactive'}</Badge>
-              </td>
-              <td className="d-flex gap-2">
-                <Button size="sm" variant="outline-secondary" onClick={() => setEditing(p)}>
-                  Edit
-                </Button>
-                {p.isActive && (
-                  <Button size="sm" variant="outline-danger" onClick={() => handleDeactivate(p._id)}>
-                    Deactivate
-                  </Button>
-                )}
-              </td>
-            </tr>
-          ))}
-          {plans.length === 0 && (
+
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+
+      <div className="sr-table-wrap">
+        <table className="sr-table">
+          <thead>
             <tr>
-              <td colSpan={5} className="text-center text-muted">
-                No plans yet
-              </td>
+              <th>Name</th>
+              <th>Duration</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
-          )}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {plans.map((p) => (
+              <tr key={p._id}>
+                <td>{p.name}</td>
+                <td>{p.duration} days</td>
+                <td>₹{p.price}</td>
+                <td>
+                  <span className={`sr-badge ${p.isActive ? 'sr-badge-success' : 'sr-badge-muted'}`}>
+                    {p.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </td>
+                <td>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button className="sr-btn sr-btn-sm sr-btn-outline" onClick={() => setEditing(p)}>
+                      Edit
+                    </button>
+                    {p.isActive && (
+                      <button className="sr-btn sr-btn-sm sr-btn-danger" onClick={() => handleDeactivate(p._id)}>
+                        Deactivate
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {plans.length === 0 && (
+              <tr className="sr-table-empty">
+                <td colSpan={5}>
+                  No plans yet
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Badge, Alert, Spinner } from 'react-bootstrap';
 import { fetchComplaintById } from './complaintService.js';
 
-const statusColor = { open: 'warning', in_progress: 'info', resolved: 'success', closed: 'secondary' };
+const statusColor = { open: 'warning', in_progress: 'info', resolved: 'success', closed: 'muted' };
 
 export default function ComplaintDetail() {
   const { id } = useParams();
@@ -18,31 +17,37 @@ export default function ComplaintDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <Spinner animation="border" />;
-  if (error) return <Alert variant="danger">{error}</Alert>;
+  if (loading) return (
+    <div className="sr-spinner-wrap">
+      <div className="sr-spinner" />
+    </div>
+  );
+  if (error) return <div className="sr-alert sr-alert-danger">{error}</div>;
   if (!complaint) return null;
 
   return (
-    <Card>
-      <Card.Body>
-        <Card.Title className="d-flex justify-content-between align-items-center">
-          {complaint.subject}
-          <Badge bg={statusColor[complaint.status]}>{complaint.status.replace('_', ' ')}</Badge>
-        </Card.Title>
-        <p className="text-muted small">
-          {complaint.type} • {complaint.priority} priority • filed{' '}
-          {new Date(complaint.createdAt).toLocaleDateString()}
-        </p>
-        <p>{complaint.description}</p>
+    <div className="sr-card">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+        <h3 className="sr-card-title m-0">{complaint.subject}</h3>
+        <span className={`sr-badge sr-badge-${statusColor[complaint.status]}`}>
+          {complaint.status.replace('_', ' ')}
+        </span>
+      </div>
+      
+      <p className="sr-text-muted" style={{ fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+        {complaint.type} • {complaint.priority} priority • filed{' '}
+        {new Date(complaint.createdAt).toLocaleDateString()}
+      </p>
+      
+      <p style={{ marginBottom: '1.5rem' }}>{complaint.description}</p>
 
-        {complaint.adminResponse && (
-          <Alert variant="secondary">
-            <strong>Admin response:</strong>
-            <br />
-            {complaint.adminResponse}
-          </Alert>
-        )}
-      </Card.Body>
-    </Card>
+      {complaint.adminResponse && (
+        <div className="sr-alert sr-alert-muted">
+          <strong>Admin response:</strong>
+          <br />
+          {complaint.adminResponse}
+        </div>
+      )}
+    </div>
   );
 }

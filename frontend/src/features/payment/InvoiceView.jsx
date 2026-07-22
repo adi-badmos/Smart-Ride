@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Row, Col, Spinner, Alert, Table, Badge } from 'react-bootstrap';
 import { fetchPaymentById } from './paymentService.js';
 
 // Structured HTML view, per spec — no PDF export in this build.
@@ -17,73 +16,72 @@ export default function InvoiceView() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <Spinner animation="border" />;
-  if (error) return <Alert variant="danger">{error}</Alert>;
+  if (loading) return (
+    <div className="sr-spinner-wrap">
+      <div className="sr-spinner" />
+    </div>
+  );
+  if (error) return <div className="sr-alert sr-alert-danger">{error}</div>;
   if (!payment) return null;
 
   return (
-    <Card>
-      <Card.Body>
-        <Row className="mb-4">
-          <Col>
-            <h4 className="mb-0">Smart Ride</h4>
-            <p className="text-muted small mb-0">Invoice / Receipt</p>
-          </Col>
-          <Col className="text-end">
-            <Badge bg={payment.status === 'captured' ? 'success' : 'secondary'}>{payment.status}</Badge>
-          </Col>
-        </Row>
+    <div className="sr-card">
+      <div className="sr-invoice-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+        <div>
+          <h4 style={{ margin: 0 }}>Smart Ride</h4>
+          <p className="sr-text-muted" style={{ margin: 0, fontSize: '0.875rem' }}>Invoice / Receipt</p>
+        </div>
+        <div>
+          <span className={`sr-badge sr-badge-${payment.status === 'captured' ? 'success' : 'muted'}`}>
+            {payment.status}
+          </span>
+        </div>
+      </div>
 
-        <Row className="mb-4">
-          <Col md={6}>
-            <p className="mb-1">
-              <strong>Receipt No.</strong>
-            </p>
-            <p className="text-muted">{payment.receipt}</p>
-          </Col>
-          <Col md={6}>
-            <p className="mb-1">
-              <strong>Date</strong>
-            </p>
-            <p className="text-muted">{new Date(payment.createdAt).toLocaleString()}</p>
-          </Col>
-        </Row>
+      <div className="sr-detail-grid" style={{ marginBottom: '1.5rem' }}>
+        <div className="sr-detail-label">Receipt No.</div>
+        <div className="sr-detail-value">{payment.receipt}</div>
+        
+        <div className="sr-detail-label">Date</div>
+        <div className="sr-detail-value">{new Date(payment.createdAt).toLocaleString()}</div>
+      </div>
 
-        <Table borderless size="sm">
-          <tbody>
+      <hr className="sr-divider" />
+
+      <table className="sr-table" style={{ border: 'none' }}>
+        <tbody>
+          <tr>
+            <td>Plan</td>
+            <td style={{ textAlign: 'right' }}>{payment.subscription?.plan?.name}</td>
+          </tr>
+          <tr>
+            <td>Payment Method</td>
+            <td className="sr-capitalize" style={{ textAlign: 'right' }}>{payment.method}</td>
+          </tr>
+          {payment.razorpayOrderId && (
             <tr>
-              <td>Plan</td>
-              <td className="text-end">{payment.subscription?.plan?.name}</td>
+              <td>Razorpay Order ID</td>
+              <td style={{ textAlign: 'right' }}>{payment.razorpayOrderId}</td>
             </tr>
+          )}
+          {payment.razorpayPaymentId && (
             <tr>
-              <td>Payment Method</td>
-              <td className="text-end text-capitalize">{payment.method}</td>
+              <td>Razorpay Payment ID</td>
+              <td style={{ textAlign: 'right' }}>{payment.razorpayPaymentId}</td>
             </tr>
-            {payment.razorpayOrderId && (
-              <tr>
-                <td>Razorpay Order ID</td>
-                <td className="text-end">{payment.razorpayOrderId}</td>
-              </tr>
-            )}
-            {payment.razorpayPaymentId && (
-              <tr>
-                <td>Razorpay Payment ID</td>
-                <td className="text-end">{payment.razorpayPaymentId}</td>
-              </tr>
-            )}
-            <tr className="border-top">
-              <td>
-                <strong>Total Paid</strong>
-              </td>
-              <td className="text-end">
-                <strong>
-                  ₹{payment.amount} {payment.currency}
-                </strong>
-              </td>
-            </tr>
-          </tbody>
-        </Table>
-      </Card.Body>
-    </Card>
+          )}
+          <tr className="sr-invoice-total" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <td style={{ paddingTop: '1rem' }}>
+              <strong>Total Paid</strong>
+            </td>
+            <td style={{ textAlign: 'right', paddingTop: '1rem' }}>
+              <strong>
+                ₹{payment.amount} {payment.currency}
+              </strong>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   );
 }

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Card, Table, Form, Button, Alert, Spinner, Badge } from 'react-bootstrap';
 import { fetchMyRoute, fetchMyCommuters } from '../driverService.js';
 import { markAttendanceRequest, fetchRouteAttendance } from './attendanceService.js';
 
@@ -59,25 +58,35 @@ export default function MarkAttendance() {
     }
   };
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading) return (
+    <div className="sr-spinner-wrap">
+      <div className="sr-spinner" />
+    </div>
+  );
 
   return (
     <>
-      <h4 className="mb-3">Mark Attendance</h4>
-      {error && <Alert variant="danger">{error}</Alert>}
+      <h4 className="sr-page-title">Mark Attendance</h4>
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
 
-      <Form.Group className="mb-3" style={{ maxWidth: 250 }}>
-        <Form.Label>Date</Form.Label>
-        <Form.Control type="date" value={date} onChange={(e) => setDate(e.target.value)} max={todayStr()} />
-      </Form.Group>
+      <div className="sr-form-group" style={{ maxWidth: 220, marginBottom: '1.5rem' }}>
+        <label className="sr-label">Date</label>
+        <input 
+          className="sr-input" 
+          type="date" 
+          value={date} 
+          onChange={(e) => setDate(e.target.value)} 
+          max={todayStr()} 
+        />
+      </div>
 
-      {!route && <Alert variant="info">You don't have an assigned route yet.</Alert>}
+      {!route && <div className="sr-alert sr-alert-info">You don't have an assigned route yet.</div>}
 
       {route && (
-        <Card>
-          <Card.Body>
-            <Card.Title>{route.name}</Card.Title>
-            <Table striped bordered hover responsive>
+        <div className="sr-card">
+          <h3 className="sr-card-title">{route.name}</h3>
+          <div className="sr-table-wrap">
+            <table className="sr-table">
               <thead>
                 <tr>
                   <th>Rider</th>
@@ -95,61 +104,58 @@ export default function MarkAttendance() {
                       <td>{c.pickupPoint}</td>
                       <td>
                         {existing ? (
-                          <Badge
-                            bg={
+                          <span
+                            className={`sr-badge sr-badge-${
                               existing.status === 'present'
                                 ? 'success'
                                 : existing.status === 'absent'
                                 ? 'danger'
                                 : 'warning'
-                            }
+                            }`}
                           >
                             {existing.status}
-                          </Badge>
+                          </span>
                         ) : (
-                          <Badge bg="secondary">Not marked</Badge>
+                          <span className="sr-badge sr-badge-muted">Not marked</span>
                         )}
                       </td>
-                      <td className="d-flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline-success"
-                          disabled={!!existing || submittingId === c._id}
-                          onClick={() => handleMark(c._id, 'present')}
-                        >
-                          Present
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline-danger"
-                          disabled={!!existing || submittingId === c._id}
-                          onClick={() => handleMark(c._id, 'absent')}
-                        >
-                          Absent
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline-warning"
-                          disabled={!!existing || submittingId === c._id}
-                          onClick={() => handleMark(c._id, 'leave')}
-                        >
-                          Leave
-                        </Button>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            className="sr-btn sr-btn-success sr-btn-sm"
+                            disabled={!!existing || submittingId === c._id}
+                            onClick={() => handleMark(c._id, 'present')}
+                          >
+                            Present
+                          </button>
+                          <button
+                            className="sr-btn sr-btn-danger sr-btn-sm"
+                            disabled={!!existing || submittingId === c._id}
+                            onClick={() => handleMark(c._id, 'absent')}
+                          >
+                            Absent
+                          </button>
+                          <button
+                            className="sr-btn sr-btn-warning sr-btn-sm"
+                            disabled={!!existing || submittingId === c._id}
+                            onClick={() => handleMark(c._id, 'leave')}
+                          >
+                            Leave
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
                 })}
                 {commuters.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="text-center text-muted">
-                      No riders on your route
-                    </td>
+                  <tr className="sr-table-empty">
+                    <td colSpan={4}>No riders on your route</td>
                   </tr>
                 )}
               </tbody>
-            </Table>
-          </Card.Body>
-        </Card>
+            </table>
+          </div>
+        </div>
       )}
     </>
   );

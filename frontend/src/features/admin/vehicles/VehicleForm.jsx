@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Form, Button, Alert, Row, Col, Card } from 'react-bootstrap';
 import { createVehicleRequest } from './vehicleService.js';
 import { fetchDrivers } from '../adminService.js';
 
@@ -52,81 +51,82 @@ export default function VehicleForm({ onCreated }) {
   };
 
   return (
-    <Card className="mb-4">
-      <Card.Body>
-        <Card.Title>Add Vehicle</Card.Title>
-        {error && <Alert variant="danger">{error}</Alert>}
-        {success && <Alert variant="success">{success}</Alert>}
-        <Form onSubmit={handleSubmit}>
-          <Row className="g-3">
-            <Col md={6}>
-              <Form.Label>Registration Number</Form.Label>
-              <Form.Control
-                name="registrationNumber"
-                value={form.registrationNumber}
-                onChange={handleChange}
-                required
-              />
-            </Col>
-            <Col md={6}>
-              <Form.Label>Type</Form.Label>
-              <Form.Select name="type" value={form.type} onChange={handleChange}>
-                <option value="sedan">Sedan</option>
-                <option value="suv">SUV</option>
-                <option value="van">Van</option>
-                <option value="bus">Bus</option>
-              </Form.Select>
-            </Col>
-            <Col md={6}>
-              <Form.Label>Capacity</Form.Label>
-              <Form.Control
-                type="number"
-                name="capacity"
-                min={1}
-                value={form.capacity}
-                onChange={handleChange}
-                required
-              />
-            </Col>
-            <Col md={6}>
-              <Form.Label>Make</Form.Label>
-              <Form.Control name="make" value={form.make} onChange={handleChange} required />
-            </Col>
-            <Col md={6}>
-              <Form.Label>Model</Form.Label>
-              <Form.Control name="model" value={form.model} onChange={handleChange} required />
-            </Col>
-            <Col md={6}>
-              <Form.Label>Year</Form.Label>
-              <Form.Control type="number" name="year" value={form.year} onChange={handleChange} required />
-            </Col>
-            <Col md={6}>
-              <Form.Label>Insurance Expiry</Form.Label>
-              <Form.Control
-                type="date"
-                name="insuranceExpiry"
-                value={form.insuranceExpiry}
-                onChange={handleChange}
-                required
-              />
-            </Col>
-            <Col md={6}>
-              <Form.Label>Assign Driver (optional)</Form.Label>
-              <Form.Select name="driverProfile" value={form.driverProfile} onChange={handleChange}>
-                <option value="">— Unassigned —</option>
-                {drivers.map((d) => (
-                  <option key={d._id} value={d._id}>
-                    {d.user?.name} ({d.licenseNumber})
-                  </option>
-                ))}
-              </Form.Select>
-            </Col>
-          </Row>
-          <Button type="submit" className="mt-3" disabled={submitting}>
-            {submitting ? 'Adding...' : 'Add Vehicle'}
-          </Button>
-        </Form>
-      </Card.Body>
-    </Card>
+    <div className="sr-card" style={{ marginBottom: '1.5rem' }}>
+      <div className="sr-card-title">Add Vehicle</div>
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+      {success && <div className="sr-alert sr-alert-success">{success}</div>}
+      <form onSubmit={handleSubmit}>
+        <div className="sr-row sr-col-2" style={{ gap: '1rem', marginBottom: '1rem' }}>
+          <div className="sr-form-group">
+            <label className="sr-label">Registration Number</label>
+            <input
+              className="sr-input"
+              name="registrationNumber"
+              value={form.registrationNumber}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Type</label>
+            <select className="sr-select" name="type" value={form.type} onChange={handleChange}>
+              <option value="sedan">Sedan</option>
+              <option value="suv">SUV</option>
+              <option value="van">Van</option>
+              <option value="bus">Bus</option>
+            </select>
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Capacity</label>
+            <input
+              className="sr-input"
+              type="number"
+              name="capacity"
+              min={1}
+              value={form.capacity}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Make</label>
+            <input className="sr-input" name="make" value={form.make} onChange={handleChange} required />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Model</label>
+            <input className="sr-input" name="model" value={form.model} onChange={handleChange} required />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Year</label>
+            <input className="sr-input" type="number" name="year" value={form.year} onChange={handleChange} required />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Insurance Expiry</label>
+            <input
+              className="sr-input"
+              type="date"
+              name="insuranceExpiry"
+              value={form.insuranceExpiry}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Assign Driver (optional)</label>
+            <select className="sr-select" name="driverProfile" value={form.driverProfile} onChange={handleChange}>
+              <option value="">— Unassigned —</option>
+              {drivers.map((d) => (
+                <option key={d._id} value={d._id}>
+                  {d.user?.name} ({d.licenseNumber})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <button type="submit" className="sr-btn sr-btn-primary" disabled={submitting}>
+          {submitting ? 'Adding...' : 'Add Vehicle'}
+        </button>
+      </form>
+    </div>
   );
 }

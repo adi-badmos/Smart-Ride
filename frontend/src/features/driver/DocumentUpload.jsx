@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Card, Form, Button, Alert, Table, Badge, Spinner } from 'react-bootstrap';
 import { fetchMyDriverProfile, uploadDocumentRequest } from './driverService.js';
 
 const DOC_TYPES = [
@@ -10,7 +9,7 @@ const DOC_TYPES = [
 ];
 
 const verificationColor = { pending: 'warning', in_review: 'info', approved: 'success', rejected: 'danger' };
-const docStatusColor = { pending: 'secondary', approved: 'success', rejected: 'danger' };
+const docStatusColor = { pending: 'muted', approved: 'success', rejected: 'danger' }; // mapped pending to muted instead of secondary
 
 export default function DocumentUpload() {
   const [profile, setProfile] = useState(null);
@@ -57,81 +56,86 @@ export default function DocumentUpload() {
     }
   };
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading) return (
+    <div className="sr-spinner-wrap">
+      <div className="sr-spinner" />
+    </div>
+  );
 
   return (
     <>
-      <h4 className="mb-3">My Documents</h4>
+      <h4 className="sr-page-title">My Documents</h4>
       {profile && (
-        <p>
+        <p style={{ marginBottom: '1.5rem' }}>
           Verification Status:{' '}
-          <Badge bg={verificationColor[profile.verificationStatus]}>{profile.verificationStatus}</Badge>
+          <span className={`sr-badge sr-badge-${verificationColor[profile.verificationStatus]}`}>
+            {profile.verificationStatus}
+          </span>
         </p>
       )}
 
-      <Card className="mb-4">
-        <Card.Body>
-          <Card.Title>Upload a Document</Card.Title>
-          {error && <Alert variant="danger">{error}</Alert>}
-          {success && <Alert variant="success">{success}</Alert>}
-          <Form onSubmit={handleUpload}>
-            <Form.Group className="mb-3">
-              <Form.Label>Document Type</Form.Label>
-              <Form.Select value={docType} onChange={(e) => setDocType(e.target.value)}>
-                {DOC_TYPES.map((d) => (
-                  <option key={d.value} value={d.value}>
-                    {d.label}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>File (JPEG, PNG, or PDF — max 5MB)</Form.Label>
-              <Form.Control
-                type="file"
-                accept=".jpg,.jpeg,.png,.pdf"
-                onChange={(e) => setFile(e.target.files[0])}
-                required
-              />
-            </Form.Group>
-            <Button type="submit" disabled={uploading}>
-              {uploading ? 'Uploading...' : 'Upload'}
-            </Button>
-          </Form>
-        </Card.Body>
-      </Card>
+      <div className="sr-card" style={{ marginBottom: '1.5rem' }}>
+        <h3 className="sr-card-title">Upload a Document</h3>
+        {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+        {success && <div className="sr-alert sr-alert-success">{success}</div>}
+        <form onSubmit={handleUpload}>
+          <div className="sr-form-group">
+            <label className="sr-label">Document Type</label>
+            <select className="sr-select" value={docType} onChange={(e) => setDocType(e.target.value)}>
+              {DOC_TYPES.map((d) => (
+                <option key={d.value} value={d.value}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">File (JPEG, PNG, or PDF — max 5MB)</label>
+            <input
+              className="sr-input"
+              type="file"
+              accept=".jpg,.jpeg,.png,.pdf"
+              onChange={(e) => setFile(e.target.files[0])}
+              required
+            />
+          </div>
+          <button type="submit" className="sr-btn sr-btn-primary" disabled={uploading}>
+            {uploading ? 'Uploading...' : 'Upload'}
+          </button>
+        </form>
+      </div>
 
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Status</th>
-            <th>File</th>
-          </tr>
-        </thead>
-        <tbody>
-          {profile?.documents.map((d) => (
-            <tr key={d._id}>
-              <td className="text-capitalize">{d.type.replace('_', ' ')}</td>
-              <td>
-                <Badge bg={docStatusColor[d.status]}>{d.status}</Badge>
-              </td>
-              <td>
-                <a href={d.url} target="_blank" rel="noreferrer">
-                  View
-                </a>
-              </td>
-            </tr>
-          ))}
-          {(!profile || profile.documents.length === 0) && (
+      <div className="sr-table-wrap">
+        <table className="sr-table">
+          <thead>
             <tr>
-              <td colSpan={3} className="text-center text-muted">
-                No documents uploaded yet
-              </td>
+              <th>Type</th>
+              <th>Status</th>
+              <th>File</th>
             </tr>
-          )}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {profile?.documents.map((d) => (
+              <tr key={d._id}>
+                <td className="sr-capitalize">{d.type.replace('_', ' ')}</td>
+                <td>
+                  <span className={`sr-badge sr-badge-${docStatusColor[d.status]}`}>{d.status}</span>
+                </td>
+                <td>
+                  <a href={d.url} target="_blank" rel="noreferrer">
+                    View
+                  </a>
+                </td>
+              </tr>
+            ))}
+            {(!profile || profile.documents.length === 0) && (
+              <tr className="sr-table-empty">
+                <td colSpan={3}>No documents uploaded yet</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

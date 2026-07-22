@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 
@@ -17,8 +16,10 @@ export default function LoginPage() {
     setError('');
     setSubmitting(true);
     try {
-      await login(form);
-      navigate('/');
+      const loggedInUser = await login(form);
+      if (loggedInUser.role === 'admin') navigate('/admin');
+      else if (loggedInUser.role === 'driver') navigate('/driver/dashboard');
+      else navigate('/profile');
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Login failed');
     } finally {
@@ -28,28 +29,44 @@ export default function LoginPage() {
 
   return (
     <>
-      {error && <Alert variant="danger">{error}</Alert>}
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3">
-          <Form.Label>Email</Form.Label>
-          <Form.Control type="email" name="email" value={form.email} onChange={handleChange} required />
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
+      <h2 className="sr-auth-title">Welcome back</h2>
+      <p className="sr-auth-sub">Sign in to your SmartRide account</p>
+
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+
+      <form onSubmit={handleSubmit}>
+        <div className="sr-form-group">
+          <label className="sr-label">Email</label>
+          <input
+            className="sr-input"
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+        <div className="sr-form-group">
+          <label className="sr-label">Password</label>
+          <input
+            className="sr-input"
             type="password"
             name="password"
             value={form.password}
             onChange={handleChange}
+            placeholder="••••••••"
             required
           />
-        </Form.Group>
-        <Button type="submit" className="w-100" disabled={submitting}>
-          {submitting ? 'Logging in...' : 'Log In'}
-        </Button>
-      </Form>
-      <p className="text-center mt-3 mb-0">
-        Don't have an account? <Link to="/register">Sign up</Link>
+        </div>
+        <button type="submit" className="sr-btn sr-btn-primary sr-btn-full sr-btn-lg" disabled={submitting}>
+          {submitting ? 'Signing in…' : 'Sign In'}
+        </button>
+      </form>
+
+      <p style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+        Don't have an account?{' '}
+        <Link to="/register">Create one</Link>
       </p>
     </>
   );

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Table, Badge, Alert, Spinner, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { fetchMySubscriptions } from './subscriptionService.js';
 
@@ -7,7 +6,7 @@ const statusColor = {
   PAYMENT_PENDING: 'warning',
   WAITING_ASSIGNMENT: 'info',
   ACTIVE: 'success',
-  EXPIRED: 'secondary',
+  EXPIRED: 'muted',
   CANCELLED: 'danger',
 };
 
@@ -23,52 +22,56 @@ export default function MySubscriptions() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading) return (
+    <div className="sr-spinner-wrap">
+      <div className="sr-spinner" />
+    </div>
+  );
 
   return (
     <>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="mb-0">My Subscriptions</h4>
-        <Button as={Link} to="/subscriptions/new" size="sm">
+      <div className="sr-page-header">
+        <h4 className="sr-page-title">My Subscriptions</h4>
+        <Link to="/subscriptions/new" className="sr-btn sr-btn-primary">
           + New Subscription
-        </Button>
+        </Link>
       </div>
-      {error && <Alert variant="danger">{error}</Alert>}
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>Plan</th>
-            <th>Route</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {subscriptions.map((s) => (
-            <tr key={s._id}>
-              <td>{s.plan?.name}</td>
-              <td>{s.route?.name || '—'}</td>
-              <td>
-                <Badge bg={statusColor[s.status]}>{s.status}</Badge>
-              </td>
-              <td>{new Date(s.createdAt).toLocaleDateString()}</td>
-              <td>
-                <Button as={Link} to={`/subscriptions/${s._id}`} size="sm" variant="outline-primary">
-                  View
-                </Button>
-              </td>
-            </tr>
-          ))}
-          {subscriptions.length === 0 && (
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+      <div className="sr-table-wrap">
+        <table className="sr-table">
+          <thead>
             <tr>
-              <td colSpan={5} className="text-center text-muted">
-                No subscriptions yet
-              </td>
+              <th>Plan</th>
+              <th>Route</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th></th>
             </tr>
-          )}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {subscriptions.map((s) => (
+              <tr key={s._id}>
+                <td>{s.plan?.name}</td>
+                <td>{s.route?.name || '—'}</td>
+                <td>
+                  <span className={`sr-badge sr-badge-${statusColor[s.status]}`}>{s.status}</span>
+                </td>
+                <td>{new Date(s.createdAt).toLocaleDateString()}</td>
+                <td>
+                  <Link to={`/subscriptions/${s._id}`} className="sr-btn sr-btn-outline sr-btn-sm">
+                    View
+                  </Link>
+                </td>
+              </tr>
+            ))}
+            {subscriptions.length === 0 && (
+              <tr className="sr-table-empty">
+                <td colSpan={5}>No subscriptions yet</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

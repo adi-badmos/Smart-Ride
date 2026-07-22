@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Card, Row, Col, Spinner, Alert, Badge } from 'react-bootstrap';
 import { fetchPlans } from './subscriptionService.js';
 
 export default function PlanSelection({ selectedPlanId, onSelect }) {
@@ -14,35 +13,36 @@ export default function PlanSelection({ selectedPlanId, onSelect }) {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Spinner animation="border" />;
-  if (error) return <Alert variant="danger">{error}</Alert>;
+  if (loading) return (
+    <div className="sr-spinner-wrap">
+      <div className="sr-spinner" />
+    </div>
+  );
+  
+  if (error) return <div className="sr-alert sr-alert-danger">{error}</div>;
 
   return (
-    <Row className="g-3">
+    <div className="sr-card-grid">
       {plans.map((plan) => (
-        <Col md={4} key={plan._id}>
-          <Card
-            border={selectedPlanId === plan._id ? 'primary' : undefined}
-            onClick={() => onSelect(plan)}
-            style={{ cursor: 'pointer' }}
-          >
-            <Card.Body>
-              <Card.Title className="d-flex justify-content-between align-items-start">
-                {plan.name}
-                {selectedPlanId === plan._id && <Badge bg="primary">Selected</Badge>}
-              </Card.Title>
-              <Card.Text className="text-muted small">{plan.description}</Card.Text>
-              <p className="fs-4 mb-1">₹{plan.price}</p>
-              <p className="text-muted small mb-2">{plan.duration} days</p>
-              <ul className="small ps-3 mb-0">
-                {plan.features.map((f, i) => (
-                  <li key={i}>{f}</li>
-                ))}
-              </ul>
-            </Card.Body>
-          </Card>
-        </Col>
+        <div 
+          key={plan._id}
+          className={`sr-plan-card${selectedPlanId === plan._id ? ' selected' : ''}`}
+          onClick={() => onSelect(plan)}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <h3>{plan.name}</h3>
+            {selectedPlanId === plan._id && <span className="sr-badge sr-badge-accent">Selected</span>}
+          </div>
+          <p className="sr-text-muted">{plan.description}</p>
+          <div className="sr-plan-price">₹{plan.price}</div>
+          <p className="sr-text-muted">{plan.duration} days</p>
+          <ul className="sr-plan-features">
+            {plan.features.map((f, i) => (
+              <li key={i}>{f}</li>
+            ))}
+          </ul>
+        </div>
       ))}
-    </Row>
+    </div>
   );
 }

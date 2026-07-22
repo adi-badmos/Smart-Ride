@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Table, Badge, Alert, Spinner, Button, Tabs, Tab, Row, Col, Form } from 'react-bootstrap';
 import { fetchAllSubscriptions, fetchPendingSubscriptions } from './subscriptionAdminService.js';
 import PaginationControls from '../../../components/PaginationControls.jsx';
 import AssignRouteModal from './AssignRouteModal.jsx';
@@ -8,11 +7,12 @@ const statusColor = {
   PAYMENT_PENDING: 'warning',
   WAITING_ASSIGNMENT: 'info',
   ACTIVE: 'success',
-  EXPIRED: 'secondary',
+  EXPIRED: 'muted',
   CANCELLED: 'danger',
 };
 
 export default function SubscriptionList() {
+  const [activeTab, setActiveTab] = useState('pending');
   const [all, setAll] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [page, setPage] = useState(1);
@@ -51,122 +51,142 @@ export default function SubscriptionList() {
     loadAll();
   };
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading) return <div className="sr-spinner-wrap"><div className="sr-spinner" /></div>;
 
   const renderPendingTable = (rows) => (
-    <Table striped bordered hover responsive>
-      <thead>
-        <tr>
-          <th>Rider</th>
-          <th>Plan</th>
-          <th>Status</th>
-          <th>Created</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((s) => (
-          <tr key={s._id}>
-            <td>{s.user?.name}</td>
-            <td>{s.plan?.name}</td>
-            <td>
-              <Badge bg={statusColor[s.status]}>{s.status}</Badge>
-            </td>
-            <td>{new Date(s.createdAt).toLocaleDateString()}</td>
-            <td>
-              <Button size="sm" onClick={() => setAssigning(s)}>
-                Assign Route
-              </Button>
-            </td>
-          </tr>
-        ))}
-        {rows.length === 0 && (
+    <div className="sr-table-wrap">
+      <table className="sr-table">
+        <thead>
           <tr>
-            <td colSpan={5} className="text-center text-muted">
-              Nothing pending
-            </td>
+            <th>Rider</th>
+            <th>Plan</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Action</th>
           </tr>
-        )}
-      </tbody>
-    </Table>
+        </thead>
+        <tbody>
+          {rows.map((s) => (
+            <tr key={s._id}>
+              <td>{s.user?.name}</td>
+              <td>{s.plan?.name}</td>
+              <td>
+                <span className={`sr-badge sr-badge-${statusColor[s.status]}`}>{s.status}</span>
+              </td>
+              <td>{new Date(s.createdAt).toLocaleDateString()}</td>
+              <td>
+                <button className="sr-btn sr-btn-sm sr-btn-primary" onClick={() => setAssigning(s)}>
+                  Assign Route
+                </button>
+              </td>
+            </tr>
+          ))}
+          {rows.length === 0 && (
+            <tr className="sr-table-empty">
+              <td colSpan={5}>
+                Nothing pending
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 
   return (
     <>
-      <h4 className="mb-3">Subscriptions</h4>
-      {error && <Alert variant="danger">{error}</Alert>}
-      <Tabs defaultActiveKey="pending" className="mb-3">
-        <Tab eventKey="pending" title={`Pending Assignment (${pending.length})`}>
-          {renderPendingTable(pending)}
-        </Tab>
-        <Tab eventKey="all" title="All Subscriptions">
-          <Form onSubmit={handleSearchSubmit} className="mb-3">
-            <Row className="g-2">
-              <Col md={4}>
-                <Form.Control
-                  placeholder="Search by rider name or email"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </Col>
-              <Col md={3}>
-                <Form.Select
-                  value={status}
-                  onChange={(e) => {
-                    setPage(1);
-                    setStatus(e.target.value);
-                  }}
-                >
-                  <option value="">All statuses</option>
-                  <option value="PAYMENT_PENDING">Payment Pending</option>
-                  <option value="WAITING_ASSIGNMENT">Waiting Assignment</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="EXPIRED">Expired</option>
-                  <option value="CANCELLED">Cancelled</option>
-                </Form.Select>
-              </Col>
-              <Col md="auto">
-                <Button type="submit" variant="outline-primary">
-                  Search
-                </Button>
-              </Col>
-            </Row>
-          </Form>
+      <div className="sr-page-header">
+        <h1 className="sr-page-title">Subscriptions</h1>
+      </div>
 
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Rider</th>
-                <th>Plan</th>
-                <th>Route</th>
-                <th>Status</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {all.map((s) => (
-                <tr key={s._id}>
-                  <td>{s.user?.name}</td>
-                  <td>{s.plan?.name}</td>
-                  <td>{s.route?.name || '—'}</td>
-                  <td>
-                    <Badge bg={statusColor[s.status]}>{s.status}</Badge>
-                  </td>
-                  <td>{new Date(s.createdAt).toLocaleDateString()}</td>
-                </tr>
-              ))}
-              {all.length === 0 && (
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+
+      <div className="sr-tabs" style={{ marginBottom: '1.5rem' }}>
+        <button
+          className={`sr-tab ${activeTab === 'pending' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pending')}
+        >
+          Pending Assignment ({pending.length})
+        </button>
+        <button
+          className={`sr-tab ${activeTab === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveTab('all')}
+        >
+          All Subscriptions
+        </button>
+      </div>
+
+      {activeTab === 'pending' && renderPendingTable(pending)}
+      
+      {activeTab === 'all' && (
+        <>
+          <div className="sr-filter-row" style={{ marginBottom: '1rem' }}>
+            <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', width: '100%' }}>
+              <input
+                className="sr-input"
+                placeholder="Search by rider name or email"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ maxWidth: '300px' }}
+              />
+              <select
+                className="sr-select"
+                value={status}
+                onChange={(e) => {
+                  setPage(1);
+                  setStatus(e.target.value);
+                }}
+                style={{ maxWidth: '240px' }}
+              >
+                <option value="">All statuses</option>
+                <option value="PAYMENT_PENDING">Payment Pending</option>
+                <option value="WAITING_ASSIGNMENT">Waiting Assignment</option>
+                <option value="ACTIVE">Active</option>
+                <option value="EXPIRED">Expired</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+              <button type="submit" className="sr-btn sr-btn-outline">
+                Search
+              </button>
+            </form>
+          </div>
+
+          <div className="sr-table-wrap" style={{ marginBottom: '1rem' }}>
+            <table className="sr-table">
+              <thead>
                 <tr>
-                  <td colSpan={5} className="text-center text-muted">
-                    No subscriptions found
-                  </td>
+                  <th>Rider</th>
+                  <th>Plan</th>
+                  <th>Route</th>
+                  <th>Status</th>
+                  <th>Created</th>
                 </tr>
-              )}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {all.map((s) => (
+                  <tr key={s._id}>
+                    <td>{s.user?.name}</td>
+                    <td>{s.plan?.name}</td>
+                    <td>{s.route?.name || '—'}</td>
+                    <td>
+                      <span className={`sr-badge sr-badge-${statusColor[s.status]}`}>{s.status}</span>
+                    </td>
+                    <td>{new Date(s.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+                {all.length === 0 && (
+                  <tr className="sr-table-empty">
+                    <td colSpan={5}>
+                      No subscriptions found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
           <PaginationControls pagination={pagination} onPageChange={setPage} />
-        </Tab>
-      </Tabs>
+        </>
+      )}
 
       <AssignRouteModal
         subscription={assigning}

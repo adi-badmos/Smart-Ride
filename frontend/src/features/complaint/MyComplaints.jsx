@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Table, Badge, Alert, Spinner, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { fetchMyComplaints } from './complaintService.js';
 
-const statusColor = { open: 'warning', in_progress: 'info', resolved: 'success', closed: 'secondary' };
+const statusColor = { open: 'warning', in_progress: 'info', resolved: 'success', closed: 'muted' };
 
 export default function MyComplaints() {
   const [complaints, setComplaints] = useState([]);
@@ -17,54 +16,60 @@ export default function MyComplaints() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading) return (
+    <div className="sr-spinner-wrap">
+      <div className="sr-spinner" />
+    </div>
+  );
 
   return (
     <>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="mb-0">My Complaints</h4>
-        <Button as={Link} to="/complaints/new" size="sm">
+      <div className="sr-page-header">
+        <h4 className="sr-page-title">My Complaints</h4>
+        <Link to="/complaints/new" className="sr-btn sr-btn-primary">
           + New Complaint
-        </Button>
+        </Link>
       </div>
-      {error && <Alert variant="danger">{error}</Alert>}
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>Subject</th>
-            <th>Type</th>
-            <th>Priority</th>
-            <th>Status</th>
-            <th>Filed</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {complaints.map((c) => (
-            <tr key={c._id}>
-              <td>{c.subject}</td>
-              <td className="text-capitalize">{c.type}</td>
-              <td className="text-capitalize">{c.priority}</td>
-              <td>
-                <Badge bg={statusColor[c.status]}>{c.status.replace('_', ' ')}</Badge>
-              </td>
-              <td>{new Date(c.createdAt).toLocaleDateString()}</td>
-              <td>
-                <Button as={Link} to={`/complaints/${c._id}`} size="sm" variant="outline-primary">
-                  View
-                </Button>
-              </td>
-            </tr>
-          ))}
-          {complaints.length === 0 && (
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+      <div className="sr-table-wrap">
+        <table className="sr-table">
+          <thead>
             <tr>
-              <td colSpan={6} className="text-center text-muted">
-                No complaints filed yet
-              </td>
+              <th>Subject</th>
+              <th>Type</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Filed</th>
+              <th></th>
             </tr>
-          )}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {complaints.map((c) => (
+              <tr key={c._id}>
+                <td>{c.subject}</td>
+                <td className="sr-capitalize">{c.type}</td>
+                <td className="sr-capitalize">{c.priority}</td>
+                <td>
+                  <span className={`sr-badge sr-badge-${statusColor[c.status]}`}>
+                    {c.status.replace('_', ' ')}
+                  </span>
+                </td>
+                <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+                <td>
+                  <Link to={`/complaints/${c._id}`} className="sr-btn sr-btn-outline sr-btn-sm">
+                    View
+                  </Link>
+                </td>
+              </tr>
+            ))}
+            {complaints.length === 0 && (
+              <tr className="sr-table-empty">
+                <td colSpan={6}>No complaints filed yet</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

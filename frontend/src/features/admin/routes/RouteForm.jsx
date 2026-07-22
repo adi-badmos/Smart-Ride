@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Form, Button, Alert, Row, Col, Card, ButtonGroup } from 'react-bootstrap';
 import { createRouteRequest, updateRouteRequest } from './routeService.js';
 import { fetchDrivers } from '../adminService.js';
 import { fetchVehicles } from '../vehicles/vehicleService.js';
@@ -121,159 +120,156 @@ export default function RouteForm({ initialRoute, onSaved }) {
   };
 
   return (
-    <Card className="mb-4">
-      <Card.Body>
-        <Card.Title>{initialRoute ? 'Edit Route' : 'Create Route'}</Card.Title>
-        {error && <Alert variant="danger">{error}</Alert>}
-        {success && <Alert variant="success">{success}</Alert>}
-        <Form onSubmit={handleSubmit}>
-          <Row className="g-3 mb-3">
-            <Col md={6}>
-              <Form.Label>Route Name</Form.Label>
-              <Form.Control value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-            </Col>
-            <Col md={6}>
-              <Form.Label>City</Form.Label>
-              <Form.Control value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} required />
-            </Col>
-          </Row>
+    <div className="sr-card" style={{ marginBottom: '1.5rem' }}>
+      <div className="sr-card-title">{initialRoute ? 'Edit Route' : 'Create Route'}</div>
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+      {success && <div className="sr-alert sr-alert-success">{success}</div>}
+      
+      <form onSubmit={handleSubmit}>
+        <div className="sr-row sr-col-2" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="sr-form-group">
+            <label className="sr-label">Route Name</label>
+            <input className="sr-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">City</label>
+            <input className="sr-input" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} required />
+          </div>
+        </div>
 
-          <Form.Label>Pickup Points</Form.Label>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label className="sr-label">Pickup Points</label>
           {form.pickupPoints.map((p, i) => (
-            <Row className="g-2 mb-2 align-items-start" key={p._id || i}>
-              <Col md={3}>
-                <Form.Control
-                  placeholder="Name"
-                  value={p.name}
-                  onChange={(e) => updatePickupPointField(i, 'name', e.target.value)}
-                  required
-                />
-              </Col>
-              <Col md={6}>
+            <div key={p._id || i} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 120px', gap: '0.75rem', marginBottom: '0.75rem', alignItems: 'start' }}>
+              <input
+                className="sr-input"
+                placeholder="Name"
+                value={p.name}
+                onChange={(e) => updatePickupPointField(i, 'name', e.target.value)}
+                required
+              />
+              <div style={{ minWidth: 0 }}>
                 <AddressAutocomplete
                   value={p.address}
                   onChange={(val) => updatePickupPointAddress(i, val)}
                   placeholder="Address"
                   required
                 />
-              </Col>
-              <Col md={3}>
-                <ButtonGroup size="sm" className="w-100">
-                  <Button variant="outline-secondary" onClick={() => movePickupPoint(i, -1)} disabled={i === 0}>
-                    ↑
-                  </Button>
-                  <Button
-                    variant="outline-secondary"
-                    onClick={() => movePickupPoint(i, 1)}
-                    disabled={i === form.pickupPoints.length - 1}
-                  >
-                    ↓
-                  </Button>
-                  <Button
-                    variant="outline-danger"
-                    onClick={() => removePickupPoint(i)}
-                    disabled={form.pickupPoints.length === 1}
-                  >
-                    Remove
-                  </Button>
-                </ButtonGroup>
-              </Col>
-            </Row>
+              </div>
+              <div style={{ display: 'flex', gap: '0.25rem' }}>
+                <button type="button" className="sr-btn sr-btn-sm sr-btn-outline" onClick={() => movePickupPoint(i, -1)} disabled={i === 0} style={{ padding: '0.25rem 0.5rem' }}>
+                  ↑
+                </button>
+                <button type="button" className="sr-btn sr-btn-sm sr-btn-outline" onClick={() => movePickupPoint(i, 1)} disabled={i === form.pickupPoints.length - 1} style={{ padding: '0.25rem 0.5rem' }}>
+                  ↓
+                </button>
+                <button type="button" className="sr-btn sr-btn-sm sr-btn-danger" onClick={() => removePickupPoint(i)} disabled={form.pickupPoints.length === 1} style={{ padding: '0.25rem 0.5rem' }}>
+                  ×
+                </button>
+              </div>
+            </div>
           ))}
-          <Button variant="outline-primary" size="sm" onClick={addPickupPoint} className="mb-3">
+          <button type="button" className="sr-btn sr-btn-sm sr-btn-outline" onClick={addPickupPoint}>
             + Add Pickup Point
-          </Button>
+          </button>
+        </div>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Destination Address</Form.Label>
-            <AddressAutocomplete
-              value={form.destination.address}
-              onChange={(val) => setForm({ ...form, destination: val })}
+        <div className="sr-form-group" style={{ marginBottom: '1.5rem' }}>
+          <label className="sr-label">Destination Address</label>
+          <AddressAutocomplete
+            value={form.destination.address}
+            onChange={(val) => setForm({ ...form, destination: val })}
+            required
+          />
+        </div>
+
+        <div className="sr-row sr-col-3" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="sr-form-group">
+            <label className="sr-label">Departure Time</label>
+            <input
+              className="sr-input"
+              type="time"
+              value={form.schedule.departureTime}
+              onChange={(e) => setForm({ ...form, schedule: { ...form.schedule, departureTime: e.target.value } })}
               required
             />
-          </Form.Group>
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Arrival Time</label>
+            <input
+              className="sr-input"
+              type="time"
+              value={form.schedule.arrivalTime}
+              onChange={(e) => setForm({ ...form, schedule: { ...form.schedule, arrivalTime: e.target.value } })}
+              required
+            />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Capacity</label>
+            <input
+              className="sr-input"
+              type="number"
+              min={1}
+              value={form.capacity}
+              onChange={(e) => setForm({ ...form, capacity: e.target.value })}
+              required
+            />
+          </div>
+        </div>
 
-          <Row className="g-3 mb-3">
-            <Col md={4}>
-              <Form.Label>Departure Time</Form.Label>
-              <Form.Control
-                type="time"
-                value={form.schedule.departureTime}
-                onChange={(e) => setForm({ ...form, schedule: { ...form.schedule, departureTime: e.target.value } })}
-                required
-              />
-            </Col>
-            <Col md={4}>
-              <Form.Label>Arrival Time</Form.Label>
-              <Form.Control
-                type="time"
-                value={form.schedule.arrivalTime}
-                onChange={(e) => setForm({ ...form, schedule: { ...form.schedule, arrivalTime: e.target.value } })}
-                required
-              />
-            </Col>
-            <Col md={4}>
-              <Form.Label>Capacity</Form.Label>
-              <Form.Control
-                type="number"
-                min={1}
-                value={form.capacity}
-                onChange={(e) => setForm({ ...form, capacity: e.target.value })}
-                required
-              />
-            </Col>
-          </Row>
-
-          <Form.Group className="mb-3">
-            <Form.Label className="d-block">Operating Days</Form.Label>
+        <div className="sr-form-group" style={{ marginBottom: '1.5rem' }}>
+          <label className="sr-label">Operating Days</label>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             {DAYS.map((day) => (
-              <Form.Check
-                key={day}
-                inline
-                type="checkbox"
-                label={day.toUpperCase()}
-                checked={form.schedule.operatingDays.includes(day)}
-                onChange={() => toggleDay(day)}
-              />
+              <label key={day} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem' }}>
+                <input
+                  type="checkbox"
+                  checked={form.schedule.operatingDays.includes(day)}
+                  onChange={() => toggleDay(day)}
+                />
+                {day.toUpperCase()}
+              </label>
             ))}
-          </Form.Group>
+          </div>
+        </div>
 
-          <Row className="g-3 mb-3">
-            <Col md={6}>
-              <Form.Label>Driver</Form.Label>
-              <Form.Select value={form.driver} onChange={(e) => setForm({ ...form, driver: e.target.value })}>
-                <option value="">Unassigned</option>
-                {drivers.map((d) => (
-                  <option key={d._id} value={d._id}>
-                    {d.user?.name} ({d.user?.email})
-                  </option>
-                ))}
-              </Form.Select>
-            </Col>
-            <Col md={6}>
-              <Form.Label>Vehicle</Form.Label>
-              <Form.Select value={form.vehicle} onChange={(e) => setForm({ ...form, vehicle: e.target.value })}>
-                <option value="">Unassigned</option>
-                {vehicles.map((v) => (
-                  <option key={v._id} value={v._id}>
-                    {v.registrationNumber} ({v.type})
-                  </option>
-                ))}
-              </Form.Select>
-            </Col>
-          </Row>
+        <div className="sr-row sr-col-2" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="sr-form-group">
+            <label className="sr-label">Driver</label>
+            <select className="sr-select" value={form.driver} onChange={(e) => setForm({ ...form, driver: e.target.value })}>
+              <option value="">Unassigned</option>
+              {drivers.map((d) => (
+                <option key={d._id} value={d._id}>
+                  {d.user?.name} ({d.user?.email})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Vehicle</label>
+            <select className="sr-select" value={form.vehicle} onChange={(e) => setForm({ ...form, vehicle: e.target.value })}>
+              <option value="">Unassigned</option>
+              {vehicles.map((v) => (
+                <option key={v._id} value={v._id}>
+                  {v.registrationNumber} ({v.type})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
+        <div style={{ marginBottom: '1.5rem', borderRadius: '8px', overflow: 'hidden' }}>
           <MapView
             pickupPoints={form.pickupPoints}
             destinationAddress={form.destination.address}
             destinationCoordinates={form.destination.coordinates}
           />
+        </div>
 
-          <Button type="submit" className="mt-3" disabled={submitting}>
-            {submitting ? 'Saving...' : initialRoute ? 'Update Route' : 'Create Route'}
-          </Button>
-        </Form>
-      </Card.Body>
-    </Card>
+        <button type="submit" className="sr-btn sr-btn-primary" disabled={submitting}>
+          {submitting ? 'Saving...' : initialRoute ? 'Update Route' : 'Create Route'}
+        </button>
+      </form>
+    </div>
   );
 }

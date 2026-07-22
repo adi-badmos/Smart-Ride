@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Form, Button, Alert, Row, Col, Card } from 'react-bootstrap';
 import { fetchDrivers } from '../adminService.js';
 import { createPayoutRequest } from './payoutAdminService.js';
 
@@ -42,55 +41,63 @@ export default function CreatePayout({ onCreated }) {
   };
 
   return (
-    <Card className="mb-4">
-      <Card.Body>
-        <Card.Title>Create Payout</Card.Title>
-        {error && <Alert variant="danger">{error}</Alert>}
-        {success && <Alert variant="success">{success}</Alert>}
-        <Form onSubmit={handleSubmit}>
-          <Row className="g-3">
-            <Col md={6}>
-              <Form.Label>Driver</Form.Label>
-              <Form.Select name="driverProfileId" value={form.driverProfileId} onChange={handleChange} required>
-                <option value="">Select a driver</option>
-                {drivers.map((d) => (
-                  <option key={d._id} value={d._id}>
-                    {d.user?.name} ({d.user?.email})
-                  </option>
-                ))}
-              </Form.Select>
-            </Col>
-            <Col md={6}>
-              <Form.Label>Amount</Form.Label>
-              <Form.Control
-                type="number"
-                min={0}
-                name="amount"
-                value={form.amount}
-                onChange={handleChange}
-                required
-              />
-            </Col>
-            <Col md={6}>
-              <Form.Label>Period Start</Form.Label>
-              <Form.Control
-                type="date"
-                name="startDate"
-                value={form.startDate}
-                onChange={handleChange}
-                required
-              />
-            </Col>
-            <Col md={6}>
-              <Form.Label>Period End</Form.Label>
-              <Form.Control type="date" name="endDate" value={form.endDate} onChange={handleChange} required />
-            </Col>
-          </Row>
-          <Button type="submit" className="mt-3" disabled={submitting}>
-            {submitting ? 'Creating...' : 'Create Payout'}
-          </Button>
-        </Form>
-      </Card.Body>
-    </Card>
+    <div className="sr-card" style={{ marginBottom: '1.5rem' }}>
+      <div className="sr-card-title">Create Payout</div>
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+      {success && <div className="sr-alert sr-alert-success">{success}</div>}
+      
+      <form onSubmit={handleSubmit}>
+        <div className="sr-row sr-col-2" style={{ gap: '1rem', marginBottom: '1rem' }}>
+          <div className="sr-form-group">
+            <label className="sr-label">Driver</label>
+            <select className="sr-select" name="driverProfileId" value={form.driverProfileId} onChange={handleChange} required>
+              <option value="">Select a driver</option>
+              {drivers.map((d) => (
+                <option key={d._id} value={d._id}>
+                  {d.user?.name} ({d.user?.email})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Amount (₹)</label>
+            <input
+              className="sr-input"
+              type="number"
+              min={0}
+              name="amount"
+              value={form.amount}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Period Start</label>
+            <input
+              className="sr-input"
+              type="date"
+              name="startDate"
+              value={form.startDate}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="sr-form-group">
+            <label className="sr-label">Period End</label>
+            <input 
+              className="sr-input" 
+              type="date" 
+              name="endDate" 
+              value={form.endDate} 
+              onChange={handleChange} 
+              required 
+            />
+          </div>
+        </div>
+        <button type="submit" className="sr-btn sr-btn-primary" disabled={submitting}>
+          {submitting ? 'Creating...' : 'Create Payout'}
+        </button>
+      </form>
+    </div>
   );
 }

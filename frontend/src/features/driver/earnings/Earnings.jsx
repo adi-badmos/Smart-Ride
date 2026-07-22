@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Table, Badge, Alert, Spinner } from 'react-bootstrap';
 import { fetchMyPayouts } from './payoutService.js';
 
 const statusColor = { pending: 'warning', processed: 'info', paid: 'success', failed: 'danger' };
@@ -16,49 +15,56 @@ export default function Earnings() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading) return (
+    <div className="sr-spinner-wrap">
+      <div className="sr-spinner" />
+    </div>
+  );
 
   const totalPaid = payouts.filter((p) => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0);
 
   return (
     <>
-      <h4 className="mb-3">My Earnings</h4>
-      {error && <Alert variant="danger">{error}</Alert>}
-      <p className="text-muted">
-        Total paid to date: <strong>₹{totalPaid}</strong>
-      </p>
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>Period</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Transaction Ref</th>
-          </tr>
-        </thead>
-        <tbody>
-          {payouts.map((p) => (
-            <tr key={p._id}>
-              <td>
-                {new Date(p.period.startDate).toLocaleDateString()} –{' '}
-                {new Date(p.period.endDate).toLocaleDateString()}
-              </td>
-              <td>₹{p.amount}</td>
-              <td>
-                <Badge bg={statusColor[p.status]}>{p.status}</Badge>
-              </td>
-              <td>{p.transactionRef || '—'}</td>
-            </tr>
-          ))}
-          {payouts.length === 0 && (
+      <h4 className="sr-page-title">My Earnings</h4>
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+      
+      <div className="sr-card sr-stat" style={{ marginBottom: '1.5rem', maxWidth: '300px' }}>
+        <div className="sr-stat-label">Total paid to date</div>
+        <div className="sr-stat-value">₹{totalPaid}</div>
+      </div>
+      
+      <div className="sr-table-wrap">
+        <table className="sr-table">
+          <thead>
             <tr>
-              <td colSpan={4} className="text-center text-muted">
-                No payouts yet
-              </td>
+              <th>Period</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Transaction Ref</th>
             </tr>
-          )}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {payouts.map((p) => (
+              <tr key={p._id}>
+                <td>
+                  {new Date(p.period.startDate).toLocaleDateString()} –{' '}
+                  {new Date(p.period.endDate).toLocaleDateString()}
+                </td>
+                <td>₹{p.amount}</td>
+                <td>
+                  <span className={`sr-badge sr-badge-${statusColor[p.status]}`}>{p.status}</span>
+                </td>
+                <td>{p.transactionRef || '—'}</td>
+              </tr>
+            ))}
+            {payouts.length === 0 && (
+              <tr className="sr-table-empty">
+                <td colSpan={4}>No payouts yet</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

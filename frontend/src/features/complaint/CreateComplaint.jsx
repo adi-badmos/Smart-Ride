@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Form, Button, Alert, Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { createComplaintRequest } from './complaintService.js';
 
@@ -29,51 +28,55 @@ export default function CreateComplaint() {
   };
 
   return (
-    <Card>
-      <Card.Body>
-        <Card.Title>File a Complaint</Card.Title>
-        {error && <Alert variant="danger">{error}</Alert>}
-        <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3">
-            <Form.Label>Subject</Form.Label>
-            <Form.Control name="subject" value={form.subject} onChange={handleChange} required />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Description</Form.Label>
-            <Form.Control
-              as="textarea"
+    <>
+      <h4 className="sr-page-title">File a Complaint</h4>
+      <div className="sr-card">
+        {error && <div className="sr-alert sr-alert-danger">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <div className="sr-form-group">
+            <label className="sr-label">Subject</label>
+            <input className="sr-input" name="subject" value={form.subject} onChange={handleChange} required />
+          </div>
+          
+          <div className="sr-form-group">
+            <label className="sr-label">Description</label>
+            <textarea
+              className="sr-textarea"
               rows={4}
               name="description"
               value={form.description}
               onChange={handleChange}
               required
             />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Type</Form.Label>
-            <Form.Select name="type" value={form.type} onChange={handleChange}>
+          </div>
+          
+          <div className="sr-form-group">
+            <label className="sr-label">Type</label>
+            <select className="sr-select" name="type" value={form.type} onChange={handleChange}>
               {TYPES.map((t) => (
                 <option key={t} value={t}>
                   {t}
                 </option>
               ))}
-            </Form.Select>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Priority</Form.Label>
-            <Form.Select name="priority" value={form.priority} onChange={handleChange}>
+            </select>
+          </div>
+          
+          <div className="sr-form-group">
+            <label className="sr-label">Priority</label>
+            <select className="sr-select" name="priority" value={form.priority} onChange={handleChange}>
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
                   {p}
                 </option>
               ))}
-            </Form.Select>
-          </Form.Group>
-          <Button type="submit" disabled={submitting}>
+            </select>
+          </div>
+          
+          <button type="submit" className="sr-btn sr-btn-primary" disabled={submitting}>
             {submitting ? 'Submitting...' : 'Submit Complaint'}
-          </Button>
-        </Form>
-      </Card.Body>
-    </Card>
+          </button>
+        </form>
+      </div>
+    </>
   );
 }

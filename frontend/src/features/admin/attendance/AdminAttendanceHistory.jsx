@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Table, Badge, Alert, Spinner, Form, Row, Col } from 'react-bootstrap';
 import { fetchAttendanceHistory } from './attendanceAdminService.js';
 import PaginationControls from '../../../components/PaginationControls.jsx';
 
@@ -24,61 +23,66 @@ export default function AdminAttendanceHistory() {
       .finally(() => setLoading(false));
   }, [page, status]);
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading) return <div className="sr-spinner-wrap"><div className="sr-spinner" /></div>;
 
   return (
     <>
-      <h4 className="mb-3">Attendance History</h4>
-      {error && <Alert variant="danger">{error}</Alert>}
+      <div className="sr-page-header">
+        <h1 className="sr-page-title">Attendance History</h1>
+      </div>
 
-      <Row className="g-2 mb-3">
-        <Col md={3}>
-          <Form.Select
-            value={status}
-            onChange={(e) => {
-              setPage(1);
-              setStatus(e.target.value);
-            }}
-          >
-            <option value="">All statuses</option>
-            <option value="present">Present</option>
-            <option value="absent">Absent</option>
-            <option value="leave">Leave</option>
-          </Form.Select>
-        </Col>
-      </Row>
+      {error && <div className="sr-alert sr-alert-danger">{error}</div>}
 
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Rider</th>
-            <th>Route</th>
-            <th>Driver</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {records.map((r) => (
-            <tr key={r._id}>
-              <td>{new Date(r.date).toLocaleDateString()}</td>
-              <td>{r.user?.name}</td>
-              <td>{r.route?.name}</td>
-              <td>{r.driver?.user?.name}</td>
-              <td>
-                <Badge bg={statusColor[r.status]}>{r.status}</Badge>
-              </td>
-            </tr>
-          ))}
-          {records.length === 0 && (
+      <div className="sr-filter-row" style={{ marginBottom: '1rem' }}>
+        <select
+          className="sr-select"
+          style={{ maxWidth: '200px' }}
+          value={status}
+          onChange={(e) => {
+            setPage(1);
+            setStatus(e.target.value);
+          }}
+        >
+          <option value="">All statuses</option>
+          <option value="present">Present</option>
+          <option value="absent">Absent</option>
+          <option value="leave">Leave</option>
+        </select>
+      </div>
+
+      <div className="sr-table-wrap">
+        <table className="sr-table">
+          <thead>
             <tr>
-              <td colSpan={5} className="text-center text-muted">
-                No attendance records found
-              </td>
+              <th>Date</th>
+              <th>Rider</th>
+              <th>Route</th>
+              <th>Driver</th>
+              <th>Status</th>
             </tr>
-          )}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {records.map((r) => (
+              <tr key={r._id}>
+                <td>{new Date(r.date).toLocaleDateString()}</td>
+                <td>{r.user?.name}</td>
+                <td>{r.route?.name}</td>
+                <td>{r.driver?.user?.name}</td>
+                <td>
+                  <span className={`sr-badge sr-badge-${statusColor[r.status]}`}>{r.status}</span>
+                </td>
+              </tr>
+            ))}
+            {records.length === 0 && (
+              <tr className="sr-table-empty">
+                <td colSpan={5}>
+                  No attendance records found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
       <PaginationControls pagination={pagination} onPageChange={setPage} />
     </>
   );

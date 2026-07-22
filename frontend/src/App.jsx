@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from './features/landing/LandingPage.jsx';
 import AuthLayout from './layouts/AuthLayout.jsx';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
 import LoginPage from './features/auth/LoginPage.jsx';
@@ -34,13 +35,14 @@ import ComplaintDetail from './features/complaint/ComplaintDetail.jsx';
 import ComplaintList from './features/admin/complaints/ComplaintList.jsx';
 import PayoutList from './features/admin/payouts/PayoutList.jsx';
 
-function HomePage() {
-  return <h2>Welcome to Smart Ride</h2>;
-}
+
 
 function App() {
   return (
     <Routes>
+      {/* Public landing page */}
+      <Route path="/" element={<LandingPage />} />
+
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -49,7 +51,7 @@ function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/dashboard" element={<Navigate to="/profile" replace />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/complaints" element={<MyComplaints />} />
           <Route path="/complaints/new" element={<CreateComplaint />} />
