@@ -1,40 +1,30 @@
+import sgMail from '@sendgrid/mail';
 import nodemailer from 'nodemailer';
 import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
 import { NOTIFICATION_TYPES } from '../utils/constants.js';
 
-let cachedTransporter = null;
+let sendGridReady = false;
+let cachedSmtpTransporter = null;
 
-// Credentials are considered "configured" if either SendGrid's API key is
-// set, or a full SMTP host+user+pass triplet is set. Anything less falls
-// back to logging — this is what lets Tier 1 satisfy "basic notification
-// on key events" without blocking on external credentials.
-const isEmailConfigured = () =>
-  Boolean(env.SENDGRID_API_KEY) || Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
-
-const getTransporter = () => {
-  if (cachedTransporter) return cachedTransporter;
-
-  if (env.SENDGRID_API_KEY) {
-    // SendGrid's SMTP relay — no separate SDK dependency needed.
-    cachedTransporter = nodemailer.createTransport({
-      host: 'smtp.sendgrid.net',
-      port: 587,
-      auth: { user: 'apikey', pass: env.SENDGRID_API_KEY },
-    });
-  } else {
-    cachedTransporter = nodemailer.createTransport({
-      host: env.SMTP_HOST,
-      port: Number(env.SMTP_PORT) || 587,
-      auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
-    });
-  }
-
-  return cachedTransporter;
+// Three states now: send via SendGrid's HTTP API, send via plain SMTP, or
+// just log. SendGrid takes priority when both happen to be configured.
+const getEmailChannel = () => {
+  if (env.SENDGRID_API_KEY) return 'sendgrid-api';
+  if (env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS) return 'smtp';
+  return null;
 };
 
-// Two event types only, per Tier 1 scope. DRIVER_APPROVED is added here
-// in Phase 10 alongside the driver-verification workflow — not before.
+const getSmtpTransporter = () => {
+  if (cachedSmtpTransporter) return cachedSmtpTransporter;
+  cachedSmtpTransporter = nodemailer.createTransport({
+    host: env.SMTP_HOST,
+    port: Number(env.SMTP_PORT) || 587,
+    auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
+  });
+  return cachedSmtpTransporter;
+};
+
 const TEMPLATES = {
   [NOTIFICATION_TYPES.PAYMENT_SUCCESS]: (payload) => ({
     subject: 'Payment received — Smart Ride',
@@ -44,19 +34,12 @@ const TEMPLATES = {
     subject: 'Your route is ready — Smart Ride',
     text: `Hi ${payload.userName},\n\nYou've been assigned to route "${payload.routeName}". Your pickup point is "${payload.pickupPointName}", departing at ${payload.departureTime}.\n\n— Smart Ride`,
   }),
-  // Third type, added in Phase 10 alongside the driver-verification workflow.
   [NOTIFICATION_TYPES.DRIVER_APPROVED]: (payload) => ({
     subject: 'Your driver account has been approved — Smart Ride',
     text: `Hi ${payload.userName},\n\nGood news — your documents have been verified and your driver account is now approved. You're ready to be assigned a route.\n\n— Smart Ride`,
   }),
 };
 
-/**
- * Single entry point for every notification in the app (see Architecture
- * Decisions: Notification service). Calling code never changes between
- * tiers — only what happens inside "send" does: log now, real email once
- * credentials exist, with zero changes required at the call sites.
- */
 export const send = async (type, payload) => {
   const buildTemplate = TEMPLATES[type];
   if (!buildTemplate) {
@@ -65,8 +48,9 @@ export const send = async (type, payload) => {
   }
 
   const { subject, text } = buildTemplate(payload);
+  const channel = getEmailChannel();
 
-  if (!isEmailConfigured()) {
+  if (!channel) {
     logger.info(
       `[NOTIFICATION:${type}] (no email credentials configured — logging only) To: ${payload.userEmail} | Subject: ${subject}\n${text}`
     );
@@ -74,13 +58,24 @@ export const send = async (type, payload) => {
   }
 
   try {
-    const transporter = getTransporter();
-    await transporter.sendMail({ from: env.EMAIL_FROM, to: payload.userEmail, subject, text });
-    logger.info(`[NOTIFICATION:${type}] Email sent to ${payload.userEmail}`);
+    if (channel === 'sendgrid-api') {
+      // HTTPS API call (port 443) — deliberately NOT SMTP. Many hosts,
+      // including Render's free tier, block outbound SMTP ports
+      // 25/465/587 entirely, which is what caused the earlier
+      // "Connection timeout" — the SMTP relay to smtp.sendgrid.net never
+      // reached the network at all. The HTTP API sidesteps that
+      // restriction completely since it's plain HTTPS.
+      if (!sendGridReady) {
+        sgMail.setApiKey(env.SENDGRID_API_KEY);
+        sendGridReady = true;
+      }
+      await sgMail.send({ to: payload.userEmail, from: env.EMAIL_FROM, subject, text });
+    } else {
+      const transporter = getSmtpTransporter();
+      await transporter.sendMail({ from: env.EMAIL_FROM, to: payload.userEmail, subject, text });
+    }
+    logger.info(`[NOTIFICATION:${type}] Email sent to ${payload.userEmail} via ${channel}`);
   } catch (err) {
-    // The triggering action (payment/assignment) has already succeeded by
-    // the time this runs — a notification failure must never roll that
-    // back or bubble up as an error to the caller. Log and move on.
     logger.error(`[NOTIFICATION:${type}] Failed to send to ${payload.userEmail}: ${err.message}`);
   }
 };
