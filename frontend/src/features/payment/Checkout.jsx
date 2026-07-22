@@ -87,11 +87,16 @@ export default function Checkout() {
       {error && <div className="sr-alert sr-alert-danger">{error}</div>}
       
       <div className="sr-detail-grid" style={{ marginBottom: '1.5rem' }}>
-        <div className="sr-detail-label">Plan</div>
-        <div className="sr-detail-value">{subscription.plan?.name}</div>
-        
-        <div className="sr-detail-label">Amount</div>
-        <div className="sr-detail-value">₹{subscription.plan?.price}</div>
+        <div>
+          <div className="sr-detail-label">Plan</div>
+          <div className="sr-detail-value">{subscription.plan?.name}</div>
+        </div>
+        <div>
+          <div className="sr-detail-label">Amount</div>
+          <div className="sr-detail-value" style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text)' }}>
+            ₹{subscription.plan?.price}
+          </div>
+        </div>
       </div>
       
       <div className="sr-alert sr-alert-muted">

@@ -55,7 +55,7 @@ export default function LandingPage() {
           <div className="lp-nav-links">
             <a href="#features" className="lp-nav-link">Features</a>
             <a href="#how-it-works" className="lp-nav-link">How It Works</a>
-            <a href="#stats" className="lp-nav-link">Stats</a>
+
             <Link to="/login" className="lp-btn-outline">Log In</Link>
             <Link to="/register" className="lp-btn-primary">Sign Up Free</Link>
           </div>
@@ -66,7 +66,6 @@ export default function LandingPage() {
       <section className="lp-hero">
         <div className="lp-hero-bg-overlay" />
         <div className="lp-hero-content">
-          <div className="lp-hero-badge">🚀 India's Smartest Ride Service</div>
           <h1 className="lp-hero-title">
             Your Daily Commute,
             <br />
@@ -85,36 +84,9 @@ export default function LandingPage() {
               Already a member? Log In
             </Link>
           </div>
-          <div className="lp-hero-trust">
-            <span className="lp-trust-dot" />
-            <span>Trusted by 10,000+ commuters across the city</span>
-          </div>
         </div>
 
-        {/* Floating cards */}
-        <div className="lp-hero-visual">
-          <div className="lp-float-card lp-float-card-1">
-            <div className="lp-float-icon">📍</div>
-            <div>
-              <div className="lp-float-label">Next Pickup</div>
-              <div className="lp-float-val">MG Road · 3 min</div>
-            </div>
-          </div>
-          <div className="lp-float-card lp-float-card-2">
-            <div className="lp-float-icon">⭐</div>
-            <div>
-              <div className="lp-float-label">Driver Rating</div>
-              <div className="lp-float-val">4.9 / 5.0</div>
-            </div>
-          </div>
-          <div className="lp-float-card lp-float-card-3">
-            <div className="lp-float-icon">💳</div>
-            <div>
-              <div className="lp-float-label">Monthly Plan</div>
-              <div className="lp-float-val">₹1,999 / mo</div>
-            </div>
-          </div>
-        </div>
+
       </section>
 
 

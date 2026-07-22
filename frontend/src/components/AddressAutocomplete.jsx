@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { Form, Spinner } from 'react-bootstrap';
 import { loadGoogleMaps } from '../utils/googleMapsLoader.js';
 
 // Wraps a plain text input with Google Places Autocomplete. Reports back
@@ -57,9 +56,10 @@ export default function AddressAutocomplete({ value, onChange, placeholder, requ
   };
 
   return (
-    <>
-      <Form.Control
+    <div>
+      <input
         ref={inputRef}
+        className="sr-input"
         value={value}
         onChange={handleManualChange}
         placeholder={placeholder}
@@ -67,17 +67,26 @@ export default function AddressAutocomplete({ value, onChange, placeholder, requ
         autoComplete="off"
       />
       {!mapsReady && !mapsFailed && (
-        <Form.Text className="text-muted">
-          <Spinner animation="border" size="sm" className="me-1" style={{ width: 12, height: 12 }} />
-          Loading address suggestions...
-        </Form.Text>
+        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.3rem', marginBottom: 0 }}>
+          <span style={{
+            display: 'inline-block',
+            width: 10,
+            height: 10,
+            border: '2px solid rgba(245,158,11,0.3)',
+            borderTopColor: 'var(--accent)',
+            borderRadius: '50%',
+            animation: 'sr-spin 0.7s linear infinite',
+            marginRight: '0.35rem',
+            verticalAlign: 'middle',
+          }} />
+          Loading address suggestions…
+        </p>
       )}
       {mapsFailed && (
-        <Form.Text className="text-muted">
-          Address suggestions unavailable — check your Google Maps API key. You can still type an address
-          manually.
-        </Form.Text>
+        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.3rem', marginBottom: 0 }}>
+          Address suggestions unavailable — check your Google Maps API key. You can still type manually.
+        </p>
       )}
-    </>
+    </div>
   );
 }
